@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -90,6 +92,7 @@ public class BoardController {
 	// ===> 단단한 결합(개발자가 인스턴스 변수 객체를 필요에 의해서 생성해주던 것)
 	// private InterBoardService service = new BoardService(); 
 	// ===> BoardController 객체가 메모리에서 삭제 되어지면  BoardService service 객체는 멤버변수(필드)이므로 메모리에서 자동적으로 삭제되어진다.	
+	
 	
 	@Autowired     // Type에 따라 알아서 Bean 을 주입해준다.
 	private InterBoardService service;
@@ -258,6 +261,28 @@ public class BoardController {
 		return jsonArr.toString();
 	}
 	
+	@ResponseBody
+	@RequestMapping(value="/delComment.action", produces="text/plain;charset=UTF-8")
+	public String delComment(String pw, String seq, String parentseq) {
+		
+		Map<String, String> paraMap = new HashMap<>();
+		paraMap.put("pw", pw);
+		paraMap.put("seq", seq);
+		paraMap.put("parentseq", parentseq);
+		
+		System.out.println(pw);
+		System.out.println(seq);
+		System.out.println(parentseq);
+		
+		
+		int n = service.delComment(paraMap);
+		
+		JSONObject jsonObj = new JSONObject();  // []
+
+		jsonObj.put("n", n);
+		
+		return jsonObj.toString();
+	}
 	
 	// === return 타입을 String 대신에 ModelAndView 를 사용해 보겠다. === //
 	@RequestMapping(value="/test/modelAndview_insert.action")
@@ -305,7 +330,6 @@ public class BoardController {
 	public ModelAndView test_employees(ModelAndView mav) {
 		
 		List<Map<String,String>> empList = service.test_employees();
-		
 		mav.addObject("empList", empList);
 		mav.setViewName("sample/employees");
 		//    /WEB-INF/views/sample/employees.jsp 파일을 생성한다.
@@ -546,7 +570,7 @@ public class BoardController {
 		
 		// === 사용자가 쓴 글에 파일이 첨부되어 있는 것인지, 아니면 파일첨부가 안된것인지 구분을 지어주어야 한다. === 
 		// === #153. !!! 첨부파일이 있는 경우 작업 시작 !!! ===
-		
+		HttpSession session = mrequest.getSession();
 		MultipartFile attach = boardvo.getAttach();
 		if( !attach.isEmpty() ) {
 			// attach(첨부파일)가 비어있지 않으면(즉, 첨부파일이 있는 경우라면) 
@@ -558,7 +582,7 @@ public class BoardController {
 			              조심할 것은  Package Explorer 에서  files 라는 폴더를 만드는 것이 아니다.       
 			 */
 			// WAS의 webapp 의 절대경로를 알아와야 한다.
-			HttpSession session = mrequest.getSession();
+			
 			String root = session.getServletContext().getRealPath("/");
 			
 			System.out.println("~~~~ webapp 의 절대경로 => " + root);
@@ -634,6 +658,11 @@ public class BoardController {
 		 */
 		
 		
+		
+		// 글쓰기 시간제한
+		
+		
+		
 		// 첨부파일이 없는 경우라면
 		if(attach.isEmpty()) {
 			n = service.add(boardvo);
@@ -654,6 +683,8 @@ public class BoardController {
 		}
 	}
 	
+	
+	
 	// === #58. 글목록 보기 페이지 요청 === // 
 	@RequestMapping(value="/list.action")
 	public ModelAndView list(HttpServletRequest request, ModelAndView mav) {
@@ -664,21 +695,28 @@ public class BoardController {
 		String searchWord = request.getParameter("searchWord");
 		String str_currentShowPageNo = request.getParameter("currentShowPageNo");
 		
+		
+		 
+		
 		if(searchType == null ) {
-			searchType = "";
+			searchType ="subject";
 		}
+	
 		
 		if(searchWord == null || searchWord.trim().isEmpty() ) {
 			searchWord = "";
 		}
+	
 		
 		Map<String,String> paraMap = new HashMap<>();
 		
 		paraMap.put("searchType", searchType);
 		paraMap.put("searchWord", searchWord);
 		
+		
 		// 먼저 총 게시물 건수(totalCount)를 구해와야 한다.
 		// 총 게시물 건수(totalCount)는 검색조건이 있을때와 없을때로 나뉘어진다.
+		
 		int totalCount = 0;         // 총 게시물 건수
 		int sizePerPage = 10;       // 한 페이지당 보여줄 게시물 건수 
 		int currentShowPageNo = 0;  // 현재 보여주는 페이지 번호로서, 초기치로는 1페이지로 설정함.
@@ -690,13 +728,16 @@ public class BoardController {
 		
 		// 총 게시물 건수(totalCount)
 		totalCount = service.getTotalCount(paraMap);
+		
+		System.out.println(totalCount);
+		
 		totalPage = (int) Math.ceil((double)totalCount/sizePerPage); 
 		
 		if(str_currentShowPageNo == null) {
 			// 게시판에 보여지는 초기화면
-			
 			currentShowPageNo = 1;
 		}
+		
 		
 		else {
 			try {
@@ -708,18 +749,22 @@ public class BoardController {
 				currentShowPageNo = 1;
 			}
 		}
-	
+		
 		startRno = ((currentShowPageNo - 1 ) * sizePerPage) + 1;
-		endRno = startRno + sizePerPage - 1; 
+		endRno = startRno + sizePerPage - 1;
 		
 		paraMap.put("startRno", String.valueOf(startRno));
 		paraMap.put("endRno", String.valueOf(endRno));
+		paraMap.put("currentShowPageNo", String.valueOf(currentShowPageNo));
 		
 		boardList = service.boardListSearchWithPaging(paraMap);
+		
 		// 페이징 처리한 글목록 가져오기(검색이 있든지, 검색이 없든지 모두 다 포함한것)
 		
+		mav.addObject("paraMap", paraMap);
+		
 		if(!"".equals(searchWord)) {
-			mav.addObject("paraMap", paraMap);
+			// mav.addObject("paraMap", paraMap);
 		}
 		
 		
@@ -727,12 +772,17 @@ public class BoardController {
 		String pageBar = "<ul style='list-style: none;'>";
 		
 		int blockSize = 10;
+		
 		// blockSize 는 1개 블럭(토막)당 보여지는 페이지번호의 개수 이다.
+		
+		
 		/*
 		      1 2 3 4 5 6 7 8 9 10  다음                   -- 1개블럭
 		   이전  11 12 13 14 15 16 17 18 19 20  다음   -- 1개블럭
 		   이전  21 22 23
 		*/
+		
+		
 		
 		int loop = 1;
 		
@@ -741,12 +791,16 @@ public class BoardController {
 	    */
 		
 		int pageNo = ((currentShowPageNo - 1)/blockSize) * blockSize + 1;
+		
 		// *** !! 공식이다. !! *** //
+		
+		
 		
 	/*
 	    1  2  3  4  5  6  7  8  9  10  -- 첫번째 블럭의 페이지번호 시작값(pageNo)은 1 이다.
 	    11 12 13 14 15 16 17 18 19 20  -- 두번째 블럭의 페이지번호 시작값(pageNo)은 11 이다.
 	    21 22 23 24 25 26 27 28 29 30  -- 세번째 블럭의 페이지번호 시작값(pageNo)은 21 이다.
+	    
 	    
 	    currentShowPageNo         pageNo
 	   ----------------------------------
@@ -768,7 +822,7 @@ public class BoardController {
 	         15                    11
 	         16                    11
 	         17                    11
-	         18                    11 
+	         18                    11 +
 	         19                    11 
 	         20                    11 = ((20 - 1)/10) * 10 + 1
 	         
@@ -793,6 +847,7 @@ public class BoardController {
 			if(pageNo == currentShowPageNo) {
 				pageBar += "<li style='display:inline-block; width:30px; font-size:12pt; border:solid 1px gray; color:red; padding:2px 4px;'>"+pageNo+"</li>";
 			}
+			
 			else {
 				pageBar += "<li style='display:inline-block; width:30px; font-size:12pt;'><a href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&currentShowPageNo="+pageNo+"'>"+pageNo+"</a></li>";
 			}
@@ -803,11 +858,13 @@ public class BoardController {
 		}// end of while------------------------------
 		
 		
+		
 		// === [다음][마지막] 만들기 ===
 		if( !(pageNo > totalPage) ) {
 			pageBar += "<li style='display:inline-block; width:50px; font-size:12pt;'><a href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&currentShowPageNo="+pageNo+"'>[다음]</a></li>";
 			pageBar += "<li style='display:inline-block; width:70px; font-size:12pt;'><a href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&currentShowPageNo="+totalPage+"'>[마지막]</a></li>";
 		}
+		
 		
 		pageBar += "</ul>";
 		
@@ -816,9 +873,10 @@ public class BoardController {
 		// === #123. 페이징 처리되어진 후 특정 글제목을 클릭하여 상세내용을 본 이후
 		//           사용자가 목록보기 버튼을 클릭했을때 돌아갈 페이지를 알려주기 위해
 		//           현재 페이지 주소를 뷰단으로 넘겨준다.
-		String gobackURL = MyUtil.getCurrentURL(request);
-		//	System.out.println("~~~~ 확인용 gobackURL : " + gobackURL);
-		//  ~~~~ 확인용 gobackURL : list.action?searchType=&searchWord=&currentShowPageNo=2 
+		
+		String gobackURL = MyUtil.getCurrentURL(request); 
+		System.out.println("~~~~ 확인용 gobackURL : " + gobackURL);
+		//  ~~~~ 확인용 gobackURL : list.action?searchType=&searchWord=&currentShowPageNo=2
 		
 		mav.addObject("gobackURL", gobackURL);
 		
@@ -827,6 +885,7 @@ public class BoardController {
 		//          반드시 목록보기에 와서 해당 글제목을 클릭했을 경우에만 증가되고,
 		//          웹브라우저에서 새로고침(F5)을 했을 경우에는 증가가 되지 않도록 해야 한다.
 		//          이것을 하기 위해서는 session 을 사용하여 처리하면 된다.
+		
 		
 		HttpSession session = request.getSession();
 		session.setAttribute("readCountPermission", "yes");
@@ -838,6 +897,11 @@ public class BoardController {
 		*/
 		///////////////////////////////////////////////////////////////
 		
+		
+		// url 처리
+		//currentShowPageNo=15&sizePerPage=5&searchType=name&searchWord=홍승의
+		
+		
 		number = totalCount - (currentShowPageNo-1)* 10;
 		mav.addObject("boardList",boardList);
 		mav.addObject("number", number);
@@ -847,6 +911,7 @@ public class BoardController {
 	}
 	
 	
+	
 	// === #62. 글 1개를 보여주는 페이지 요청 === // 
 	@RequestMapping(value="/view.action")
 	public ModelAndView view(HttpServletRequest request, ModelAndView mav) {
@@ -854,24 +919,40 @@ public class BoardController {
 		
 		 // 조회하고자 하는 글번호 받아오기
 		 String seq = request.getParameter("seq");
+		 
+		 
+		 // 값을 받은걸 넘겨준것 
+			
+			
 		 // === #125. 페이징 처리되어진 후 특정 글제목을 클릭하여 상세내용을 본 이후
 		 //           사용자가 목록보기 버튼을 클릭했을때 돌아갈 페이지를 알려주기 위해
 		 //           현재 페이지 주소를 뷰단으로 넘겨준다.
 		 
-		 String gobackURL = request.getParameter("gobackURL"); 
+		 String gobackURL = request.getParameter("gobackURL");
+		 System.out.println("변경 전의 gobackURL : " + gobackURL);
+	/*	 
+		 try {
+			gobackURL=URLDecoder.decode(gobackURL, "UTF-8");
+			
+		} catch (UnsupportedEncodingException e1) {
+			
+			e1.printStackTrace();
+		}
+		 
+		 System.out.println("변경 후의 gobackURL : " + gobackURL);
+	*/
+
+			
 		 if(gobackURL != null) {
 			 gobackURL = gobackURL.replaceAll(" ", "&"); // 이전글, 다음글을 클릭해서 넘어온 것임.
-		 //	 System.out.println("###### 확인용 gobackURL : " + gobackURL);
-			 // ###### 확인용 gobackURL : list.action?searchType=&searchWord=&currentShowPageNo=2 
+			  //  디코딩 해준상태에서 addObject로 넘겨주기
 			 mav.addObject("gobackURL", gobackURL);
 		 }
 		 
 		 try {
 				Integer.parseInt(seq);
-				
 				HttpSession session = request.getSession();
 				MemberVO loginuser = (MemberVO) session.getAttribute("loginuser");
-				
 				String login_userid = null;
 				
 				if(loginuser != null) {
@@ -880,6 +961,7 @@ public class BoardController {
 				}
 					
 				BoardVO boardvo = null;
+				
 				
 				// 위의 글목록보기 #69. 에서 session.setAttribute("readCountPermission", "yes"); 해두었다. 
 				if( "yes".equals(session.getAttribute("readCountPermission")) ) {
@@ -891,6 +973,7 @@ public class BoardController {
 					session.removeAttribute("readCountPermission");
 					// 중요함!! session 에 저장된 readCountPermission 을 삭제한다.
 				}
+				
 				else {
 					// 웹브라우저에서 새로고침(F5)을 클릭한 경우이다.
 					
@@ -904,6 +987,7 @@ public class BoardController {
 		  		
 		  	}
 		 
+		 
 		 mav.setViewName("board/view.tiles1");
 		 return mav;
 	}
@@ -912,14 +996,14 @@ public class BoardController {
 	// === #71. 글수정 페이지 요청 === // 
 	@RequestMapping(value="/edit.action")
 	public ModelAndView requiredLogin_edit(HttpServletRequest request, HttpServletResponse response, ModelAndView mav) {
-	
+		
 		// 글 수정해야 할 글번호 가져오기
 		String seq = request.getParameter("seq");
 		
 		// 글 수정해야할 글1개 내용 가져오기
 		BoardVO boardvo = service.getViewWithNoAddCount(seq);
 		// 글조회수(readCount) 증가 없이 단순히 글1개만 조회 해주는 것이다.
-		
+		String gobackURL = request.getParameter("gobackURL");
 		
 		/*
 		 * try { boardvo.setSubject(MyUtil.restoreTag(boardvo.getSubject()));
@@ -927,8 +1011,6 @@ public class BoardController {
 		 * (Exception e) { e.printStackTrace(); }
 		 */
 		 
-		
-		
 		HttpSession session = request.getSession();
 		MemberVO loginuser = (MemberVO) session.getAttribute("loginuser");
 		
@@ -943,12 +1025,44 @@ public class BoardController {
 //		}
 			
 			// 가져온 1개글을 글수정할 폼이 있는 view 단으로 보내준다.
+			
 			mav.addObject("boardvo", boardvo);
+			mav.addObject("gobackURL", gobackURL);
 			mav.setViewName("board/edit.tiles1");
 			
 		return mav;
+		
 	}
 	
+	
+	
+	@ResponseBody
+	@RequestMapping(value = "/checkpw.action", method = { RequestMethod.POST })
+	
+	public String checkPw(HttpServletRequest request) {
+		
+		String pw  = request.getParameter("pw");
+		String seq = request.getParameter("seq");
+		
+		
+		System.out.println("값 넘어오는지 확인 값 seq : " + seq);
+		System.out.println("값 넘어오는지 확인 값 pw : " + pw);
+		
+		Map<String, String> checkPara = new HashMap<>();
+		
+		checkPara.put("pw", pw);
+		checkPara.put("seq", seq);
+		
+		int n =service.checkPw(checkPara);
+		
+		System.out.println("n" + n);
+		
+		
+		JSONObject jsonObj = new JSONObject();
+		jsonObj.put("n", n);
+		
+		return jsonObj.toString();
+	}
 	
 	// === #72. 글수정 페이지 완료하기 === // 
 	@RequestMapping(value="/editEnd.action", method= {RequestMethod.POST})
@@ -959,14 +1073,9 @@ public class BoardController {
                         글 수정이 가능하도록 해야한다. */
 		
 		String seq = request.getParameter("seq");
+		String gobackURL = request.getParameter("gobackURL");
 		
-		
-		/*
-		 * try { boardvo.setContent(MyUtil.removeTag(boardvo.getContent()));
-		 * boardvo.setSubject(MyUtil.removeTag(boardvo.getSubject()));
-		 * 
-		 * } catch (Exception e) { e.printStackTrace(); }
-		 */
+		System.out.println("글 수정 페이지 gobackURL "+gobackURL);
 		
 		
 		int n = service.edit(boardvo); 
@@ -975,16 +1084,18 @@ public class BoardController {
 		// n 이 0 이라면 글수정에 필요한 글암호가 틀린경우  
 		
 		
-
-		
 		if(n == 0) {
 			mav.addObject("message", "암호가 일치하지 않아 글 수정이 불가합니다.");
-		}
-		else {
-			mav.addObject("message", "글수정 성공!!");
+			mav.addObject("loc", request.getContextPath()+"/edit.action?seq="+boardvo.getSeq());
+			
 		}
 		
-		mav.addObject("loc", request.getContextPath()+"/view.action?seq="+boardvo.getSeq());    
+		else {
+			mav.addObject("message", "글수정 성공!!");
+			mav.addObject("loc", request.getContextPath()+"/view.action?seq="+boardvo.getSeq()+"&gobackURL="+gobackURL);
+		}
+		
+		    
 		mav.setViewName("msg");
 		
 		
@@ -999,9 +1110,19 @@ public class BoardController {
 		
 		// 삭제해야 할 글번호 가져오기
 		String seq = request.getParameter("seq");
-		
 		// 삭제해야할 글1개 내용 가져와서 로그인한 사람이 쓴 글이라면 글삭제가 가능하지만 
 		// 다른 사람이 쓴 글은 삭제가 불가하도록 해야 한다.
+		
+		String type = request.getParameter("type");
+		String word = request.getParameter("word");
+		
+		
+		Map<String, String> boardPara = new HashMap<String, String>();
+		boardPara.put("seq", seq);
+		boardPara.put("word", word);
+		boardPara.put("type", type);
+		
+		System.out.println(seq);
 		BoardVO boardvo = service.getViewWithNoAddCount(seq);
 		// 글조회수(readCount) 증가 없이 단순히 글1개만 조회 해주는 것이다.
 		
@@ -1022,8 +1143,6 @@ public class BoardController {
 			// 글작성시 입력해준 글암호와 일치하는지 여부를 알아오도록 암호를 입력받아주는 del.jsp 페이지를 띄우도록 한다.
 			mav.addObject("seq", seq);
 			mav.setViewName("board/del.tiles1");
-		
-		
 		return mav;
 	}
 	
@@ -1034,15 +1153,30 @@ public class BoardController {
 		
 		/*  글 삭제를 하려면 원본글의 글암호와 삭제시 입력해준 암호가 일치할때만 
                         글 삭제가 가능하도록 해야한다. */
+		
 		String seq = request.getParameter("seq");
 		String pw = request.getParameter("pw");
+		
+		String type = request.getParameter("type");
+		String word = request.getParameter("word");
+		
+		System.out.println(seq);
+		
+		String gobackURL= request.getParameter("gobackURL");
 		
 		Map<String,String> paraMap = new HashMap<>();
 		paraMap.put("seq", seq);
 		paraMap.put("pw", pw);
 		
+		
 		// === #164. 파일첨부가 된 글이라면 글 삭제시 먼저 첨부파일을 삭제해주어야 한다. === //
+		Map<String, String> boardPara = new HashMap<String, String>();
+		boardPara.put("seq", seq);
+		boardPara.put("word", word);
+		boardPara.put("type", type);
+		
 		BoardVO boardvo = service.getViewWithNoAddCount(seq);
+		
 		String fileName = boardvo.getFileName();
 		
 		if( fileName != null || !"".equals(fileName) ) {
@@ -1063,13 +1197,14 @@ public class BoardController {
 		if(n == 0) {
 			mav.addObject("message", "암호가 일치하지 않아 글 삭제가 불가합니다.");
 		//	mav.addObject("loc", request.getContextPath()+"/view.action?seq="+seq);
-			
 		//  === #166. 글삭제 실패시 글1개를 보여주면서 목록보기 버튼 클릭시 올바르게 가기 위해서 gobackURL=list.action 을 추가해줌. === //
-			mav.addObject("loc", request.getContextPath()+"/view.action?seq="+seq+"&gobackURL=list.action");
+			mav.addObject("loc", request.getContextPath()+"/view.action?seq="+seq+"&gobackURL="+gobackURL);
 		}
+		
 		else {
 			mav.addObject("message", "글삭제 성공!!");
 			mav.addObject("loc", request.getContextPath()+"/list.action");
+			
 		}
 		 
 		mav.setViewName("msg");
@@ -1085,6 +1220,10 @@ public class BoardController {
 	
 		int n = 0;
 		
+		
+		System.out.println(commentvo.getComment_pw());
+		
+		
 		try {
 			n = service.addComment(commentvo);
 		} catch (Throwable e) {
@@ -1098,6 +1237,7 @@ public class BoardController {
 		jsonObj.put("name", commentvo.getName());
 		
 		return jsonObj.toString();
+		
 	}
 	
 	/*
@@ -1140,10 +1280,14 @@ public class BoardController {
 			for(CommentVO cmtvo : commentList) {
 				JSONObject jsonObj = new JSONObject();
 				jsonObj.put("content", cmtvo.getContent());
+				System.out.println(cmtvo.getSeq());
+				jsonObj.put("seq", cmtvo.getSeq());
 				jsonObj.put("name", cmtvo.getName());
 				jsonObj.put("regDate", cmtvo.getRegDate());
+				jsonObj.put("pw", cmtvo.getComment_pw());
 				jsonArr.put(jsonObj);
 			}
+			
 		}
 		
 		return jsonArr.toString();
@@ -1154,6 +1298,7 @@ public class BoardController {
 	@ResponseBody
 	@RequestMapping(value="/wordSearchShow.action", method= {RequestMethod.GET}, produces="text/plain;charset=UTF-8") 
 	public String wordSearchShow(HttpServletRequest request) {
+		
 		
 		String searchType = request.getParameter("searchType");
 		String searchWord = request.getParameter("searchWord");
@@ -1187,6 +1332,8 @@ public class BoardController {
 		String parentSeq = request.getParameter("parentSeq");
 		String currentShowPageNo = request.getParameter("currentShowPageNo");
 		
+		
+		
 		if(currentShowPageNo == null) {
 			currentShowPageNo = "1";
 		}
@@ -1216,10 +1363,12 @@ public class BoardController {
 		
 		JSONArray jsonArr = new JSONArray();  // []
 		
+		
 		if(commentList != null) {
 			for(CommentVO cmtvo : commentList) {
 				JSONObject jsonObj = new JSONObject();
 				jsonObj.put("content", cmtvo.getContent());
+				jsonObj.put("seq", cmtvo.getSeq());
 				jsonObj.put("name", cmtvo.getName());
 				jsonObj.put("regDate", cmtvo.getRegDate());
 				
@@ -1271,12 +1420,20 @@ public class BoardController {
 		  이러한 fileName 값을 DB에서 가져와야 한다.
 		  또한 orgFilename 값도 DB에서 가져와야 한다.       
 		*/
+		String type = request.getParameter("type");
+		String word = request.getParameter("word");
+		
+		
 		
 		response.setContentType("text/html; charset=UTF-8");
 		PrintWriter writer = null;
 		
 		try {
 			Integer.parseInt(seq);
+			Map<String, String> boardPara = new HashMap<String,String>();
+			boardPara.put(type, "type");
+			boardPara.put(word, "word");
+			boardPara.put(seq, "seq");
 			
 			BoardVO boardvo = service.getViewWithNoAddCount(seq);
 			String fileName = boardvo.getFileName(); // 20201209142730107400829530700.jpg  이것이 바로 WAS(톰캣) 디스크에 저장된 파일명이다. 

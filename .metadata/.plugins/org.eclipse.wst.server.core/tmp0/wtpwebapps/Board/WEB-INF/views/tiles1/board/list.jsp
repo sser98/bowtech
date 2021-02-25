@@ -6,19 +6,24 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <% String ctxPath = request.getContextPath(); %>
 
- 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">    
   
 <style type="text/css">
+
 	* {
 		font-family: "제주고딕";
-		font-size: 12pt;
+		font-size: 10pt;
 	}
 	
 	th {
-		font-size: 15pt;
+		font-size: 13pt;
+	}
+	
+	td {
+		font-family: "제주고딕";
+		font-size: 10pt;
 	}
 	
    table, th, td {border: solid 1px gray;}
@@ -27,10 +32,10 @@
     #table {width: 98%; border-collapse: collapse;}
     #table th, #table td {padding: 5px;}
     #table th {background-color: #DDD;}
-     
     .subjectStyle {font-weight: bold;
                    color: navy;
                    cursor: pointer;} 
+                   
                    
     #searchWord {
     	width: 80%;
@@ -39,14 +44,14 @@
     tr {
     	height: 50pt;
     }
-                  
+           
 </style>
 
 <script type="text/javascript">
-
+	
    $(document).ready(function(){
       
-	 
+	   
       $("span.subject").bind("mouseover", function(event){
          var $target = $(event.target);
          $target.addClass("subjectStyle");
@@ -68,8 +73,9 @@
          
       });
       
-      
-      <%-- === #107. 검색어 입력시 자동글 완성하기 2 === --%>
+      $("div#displayList").hide();
+
+     // === #107. 검색어 입력시 자동글 완성하기 2 === // 
       $("div#displayList").hide();
       $("input#searchWord").keyup(function(){
          
@@ -89,7 +95,7 @@
                    ,"searchWord":$("input#searchWord").val()},
                dataType:"JSON",
                success:function(json){
-                  <%-- === #112. 검색어 입력시 자동글 완성하기 7 === --%>
+                  // === #112. 검색어 입력시 자동글 완성하기 7 === //
                   if(json.length > 0) {
                      // 검색된 데이터가 있는 경우임.
                      
@@ -105,8 +111,10 @@
                      
                      $("div#displayList").html(html);
                      $("div#displayList").show();
+                     
                   }
                },
+               
                error: function(request, status, error){
                   alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
                 }
@@ -114,15 +122,16 @@
          }
          
       });// end of $("input#searchWord").keyup()-----------------
+   
       
-      
-      <%-- === #113. 검색어 입력시 자동글 완성하기 8 === --%>
+     // === #113. 검색어 입력시 자동글 완성하기 8 === //
       $(document).on("click",".result",function(){
          var word = $(this).text();
          $("input#searchWord").val(word); // 텍스트박스에 검색된 결과의 문자열을 입력해준다.
          $("div#displayList").hide();
          goSearch();
       });
+       
       
       
       // 검색시 검색조건 및 검색어 값 유지시키기
@@ -143,9 +152,16 @@
       var frm = document.goViewFrm;
       frm.seq.value = seq;
       
+      var word=$("input#searchWord").val();
+      var type=$("select#searchType").val();
+      
+      $("input[name=type]").val(type);
+      $("input[name=word]").val(word);
+      
       frm.method = "GET";
       frm.action = "<%= ctxPath%>/view.action";
       frm.submit();
+      
    }// end of function goView(seq){}----------------------------------------------
    
    
@@ -176,49 +192,62 @@
    <h2 style="margin-top: 30px;">자유게시판</h2>
    
    
-   
-   
    <table id="table">
    
       <tr>
-         <th style="width: 70px;  text-align: center;">글번호</th>
-         <th style="width: 360px; text-align: center;">제목</th>
-         <th style="width: 70px;  text-align: center;">작성자</th>
-         <th style="width: 150px; text-align: center;">작성일</th>
-         <th style="width: 70px;  text-align: center;">조회수</th>
+         <th class="number" style="width: 50px;  text-align: center;">글번호</th>
+         <th class="title"  style="width: 400px; text-align: center;">제목</th>
+         <th class="author" style="width: 70px;  text-align: center;">작성자</th>
+         <th class="registerdate" style="width: 100px; text-align: center;">작성일</th>
+         <th class="viewcount" style="width: 50px;  text-align: center;">조회수</th>
       </tr>   
       
-      <c:set var ="num" value="${number}"/>
+      
+      <c:set var="num" value="${number}"/>
       <c:forEach var="boardvo" items="${boardList}" varStatus="status">
       <c:set var="subjectVal" value="${boardvo.subject}"/>
-      <c:set var="date" value="${boardvo.regDate}"/>  
-         <tr>
-            <td align="center">
-             ${num}
-            </td>
+      <c:set var="date" value="${boardvo.regDate}"/>
+      <c:set var="status" value="${boardvo.status}"/>  
+
+            
+      	<c:choose>
+      	<c:when test="${boardvo.status == 0}">
+      		<tr>
+            <td align="center"></td>
+        	<td align="left">----작성자에 의해 삭제된 글입니다.</td>   	
+            <td align="center"><c:out value="${boardvo.name}"></c:out></td>
+            <td align="center">${fn:substring(date,0,10)}</td>
+            <td align="center">${boardvo.readCount}</td>
+         </tr>
+      </c:when>
+      
+      <c:otherwise>
+      
+         	<tr>
+            <td align="center">${num}</td>
             <td align="left">
+            
             <c:set var="i" value="${i + 1}"/>  
           <%-- === 댓글쓰기 및 답변형 및 파일첨부가 있는 게시판 시작 === --%>
-          <%-- 첨부파일이 없는 경우 --%>
+          <%-- 첨부파일이 없는 경우 --%>          
           <c:if test="${empty boardvo.fileName}">
+          
                <%-- 답변글이 아닌 원글인 경우 --%>
                <c:if test="${boardvo.depthno == 0}">
                   <c:if test="${boardvo.commentCount > 0}">
-                  <span class="subject" onclick="goView('${boardvo.seq}')"><c:out value="${boardvo.subject}"></c:out><span style="vertical-align: super;">[<span style="color: red; font-size: 9pt; font-style: italic; font-weight: bold;">${boardvo.commentCount}</span>]</span> </span>
+						<span class="subject" onclick="goView('${boardvo.seq}')"><c:out value="${subjectVal}"></c:out><span style="vertical-align: super;">[<span style="color: red; font-size: 9pt; font-style: italic; font-weight: bold;">${boardvo.commentCount}</span>]</span> </span>
                   </c:if>
                   
                   <c:if test="${boardvo.commentCount == 0}">
                   	<c:choose>
-                  	<c:when test="${fn:length(subjectVal) > 80}">
-                  	<!-- -->
-                  		<span class="subject" onclick="goView('${boardvo.seq}')"><c:out value=" ${fn:substring(subjectVal,0,80)}..."></c:out> </span>
+                  	<c:when test="${fn:length(subjectVal) > 60}">
+                  		<span class="subject" onclick="goView('${boardvo.seq}')"><c:out value=" ${fn:substring(subjectVal,0,60)}..."></c:out> </span>
                   	</c:when>
                   	
                   	<c:otherwise>
                   		<span class="subject" onclick="goView('${boardvo.seq}')"><c:out value="${boardvo.subject}"></c:out></span>
                   	</c:otherwise>
-                  	</c:choose>
-                  	 
+                  	</c:choose>	 
                   </c:if>
                </c:if>
                
@@ -228,6 +257,7 @@
                   <c:if test="${boardvo.commentCount > 0}">
                   <span class="subject" onclick="goView('${boardvo.seq}')"><span style="color: red; font-style: italic; padding-left: ${boardvo.depthno * 20}px;">└Re&nbsp;</span>${boardvo.subject} <span style="vertical-align: super;">[<span style="color: red; font-size: 9pt; font-style: italic; font-weight: bold;">${boardvo.commentCount}</span>]</span> </span> 
                   </c:if>
+                  
                   
                   <c:if test="${boardvo.commentCount == 0}">
                   <span class="subject" onclick="goView('${boardvo.seq}')"><span style="color: red; font-style: italic; padding-left: ${boardvo.depthno * 20}px;">└Re&nbsp;</span>${boardvo.subject}</span>  
@@ -240,7 +270,6 @@
           <c:if test="${not empty boardvo.fileName}">
                <%-- 답변글이 아닌 원글인 경우 --%>
                <c:if test="${boardvo.depthno == 0}">
-               	
                	
                   <c:if test="${boardvo.commentCount > 0}">
                   
@@ -262,17 +291,16 @@
                   </c:if>
                </c:if> 
           </c:if>     
-           
+           </td>
            
           <%-- === 댓글쓰기 및 답변형 및 파일첨부가 있는 게시판 끝 === --%>
-            </td>
-            <td align="center"><c:out value="${boardvo.name}"></c:out></td>
-            
+            <td align="center"><c:out value="${boardvo.name}"></c:out></td>            
             <td align="center">${fn:substring(date,0,10)}</td>
-            
             <td align="center">${boardvo.readCount}</td>
             </tr>
             <c:set var="num" value="${num-1}"></c:set>
+        </c:otherwise>
+      </c:choose>    
       </c:forEach>
    </table>
    
@@ -281,30 +309,31 @@
       ${pageBar}
    </div>
    
-   <%-- === #106. 검색어 입력시 자동글 완성하기 1 === --%>
-   <div id="displayList" style="border:solid 1px gray; border-top:0px; width:326px; height:100px; margin-left:70px; margin-top:-1px; overflow:auto;">
-   </div>
+   
    <%-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
              페이징 처리되어진 후 특정 글제목을 클릭하여 상세내용을 본 이후
         사용자가 목록보기 버튼을 클릭했을때 돌아갈 페이지를 알려주기 위해
         현재 페이지 주소를 뷰단으로 넘겨준다. --%>
+        
    <form name="goViewFrm">
       <input type="hidden" name="seq" />
-      <input type="hidden" name="gobackURL" value="${gobackURL}" />
+      <input type="hidden" name="gobackURL" style="width: 100%;" value="${gobackURL}"/>
    </form>
    
    <%-- === #101. 글검색 폼 추가하기 : 글제목, 글쓴이로 검색을 하도록 한다. === --%>
    <form name="searchFrm" style="margin-bottom: 20px;">
       <select name="searchType" id="searchType" style="height: 26px;">
-         <option value="subject">글제목</option>
+         <option value="subject" selected>글제목</option>
          <option value="name">글쓴이</option>
       </select>
       <input type="text" name="searchWord" id="searchWord" size="40" autocomplete="off" /> 
       <button type="button" onclick="goSearch();">검색</button>
       <button type="button" onclick="Write();" >글쓰기</button>
-      <button type="button" onclick="list();" >목록보기</button>
+      <button type="button" onclick="list();" >처음으로</button>
    </form>
    
-   
+   <%-- === #106. 검색어 입력시 자동글 완성하기 1 === --%>
+   <div id="displayList" style="border:solid 1px gray; border-top:0px; width:326px; height:100px; margin-left:70px; margin-top:-1px; overflow:auto;">
+   </div>
 
 </div>

@@ -12,11 +12,15 @@ public class CommentVO {
 	private String regDate;      // 작성일자
 	private String parentSeq;    // 원게시물 글번호
 	private String status;       // 글삭제여부
+	private String comment_pw;   // 댓글 비밀번호
 	
 	public CommentVO() { }
 	
+	
+	
 	public CommentVO(String seq, String fk_userid, String name, String content, String regDate, String parentSeq,
-			String status) {
+			String status, String comment_pw) {
+		
 		this.seq = seq;
 		this.fk_userid = fk_userid;
 		this.name = name;
@@ -24,8 +28,11 @@ public class CommentVO {
 		this.regDate = regDate;
 		this.parentSeq = parentSeq;
 		this.status = status;
+		this.comment_pw = comment_pw;
 	}
+	
 
+	
 	public String getSeq() {
 		return seq;
 	}
@@ -61,7 +68,7 @@ public class CommentVO {
 	public String getRegDate() {
 		return regDate;
 	}
-
+	
 	public void setRegDate(String regDate) {
 		this.regDate = regDate;
 	}
@@ -73,7 +80,7 @@ public class CommentVO {
 	public void setParentSeq(String parentSeq) {
 		this.parentSeq = parentSeq;
 	}
-
+	
 	public String getStatus() {
 		return status;
 	}
@@ -81,5 +88,22 @@ public class CommentVO {
 	public void setStatus(String status) {
 		this.status = status;
 	}
+
+	public String getComment_pw() {
+		return comment_pw;
+	}
+
+	public void setComment_pw(String comment_pw) {
+		this.comment_pw = comment_pw;
+	}
+
+	
+	
+	
+	
+	
+	
+	
+	
 	
 }

@@ -15,6 +15,8 @@
 		font-size: 10pt;
 	} 
 	
+	
+	
    table, th, td, input, textarea {border: solid gray 1px;}
    
    #table {border-collapse: collapse;
@@ -32,8 +34,14 @@
    	color: red;
    }
 	
+	input#name {
+		width: 80px;
+		
+	}
+	
 	input#subject {
 		width: 100%;
+		
 	}
 	
 	textarea {
@@ -53,68 +61,48 @@
 		margin-bottom: 20px;
 		font-size: 10pt;
 	}
-	
-	input#name {
-		width: 80px;
-	}
+
 	
 
 	
 </style>
-
+	
 <script type="text/javascript">
 	
 	var n = 0; // alert 한번만 뜨도록 설정
 	var a = 0; // 조건 변수
-	
+	// var content ="";
 	
    $(document).ready(function(){
 	   
-/* 	   $('textarea#content').on("propertychange change keyup keydown paste input", function () {
-		
-		   textarea_analysis();
-		}); */
+	
+	   // on이랑 bind사용방법 똑같음
+       /*$("textarea#content").on({
+		   propertychange : textarea_analysis,
+		   change : textarea_analysis,
+		   keyup : textarea_analysis,
+		   paste : textarea_analysis,
+	   }); */
 	   
- 		$('textarea#content').bind({
-			change: textarea_analysis,
-			keydown: textarea_analysis,
-			keyup: textarea_analysis,
-			hover:textarea_analysis,
-			mouseup: textarea_analysis,
-			mousedown: textarea_analysis,
-			mouseout: textarea_analysis,
-			mouseover: textarea_analysis,
-			click: textarea_analysis,
-			paste: textarea_analysis,
-			focus : textarea_analysis,
+	   
+  		$('textarea#content').bind({
+			input : textarea_analysis,
+			paste : textarea_analysis,
 			propertychange : textarea_analysis
-		});
+		}); 
 		
 		
 		$('input#subject').bind({
-			change: subject_analysis,
-			keydown: subject_analysis,
-			keyup: subject_analysis,
-			mousemove: subject_analysis,
-			mouseup: subject_analysis,
-			mousedown: subject_analysis,
-			mouseout: subject_analysis,
-			mouseover: subject_analysis,
-			click: subject_analysis,
-			onfocus : subject_analysis
+			input : subject_analysis,
+			paste : subject_analysis,
+			propertychange : subject_analysis
 		});
 		
+		
 		$('input#name').bind({
-			change: name_analysis,
-			keydown: name_analysis,
-			keyup: name_analysis,
-			mousemove: name_analysis,
-			mouseup: name_analysis,
-			mousedown: name_analysis,
-			mouseout: name_analysis,
-			mouseover: name_analysis,
-			click: name_analysis,
-			onfocus : name_analysis
+			input : name_analysis,
+			paste : name_analysis,
+			propertychange : name_analysis
 		}); 
 			    
 		
@@ -148,6 +136,7 @@
 				}
 			    
 		        $("textarea#content").val(contentVal);
+		        
 				// 글암호 유효성 검사
 				var pwVal = $("input#pw").val().trim();
 				
@@ -191,148 +180,163 @@
 	function textarea_analysis(event) {
 			 
 
-			
+			//alert("분석함수가 실행되었습니다.");
 		    content = $("textarea#content").val().trim();
 		    $("td#result").html("("+content.length+" / 최대 4500자)");
 		    
-		    
 		    if(content.length > 4500 ) {
-		    	$("textarea#content").off();
+		    	textarea_unbind();
+		    	
 		        alert_content(1);
 				$("textarea#content").val(content.substring(0, 4500));
 				content = $("textarea#content").val().trim();
-				$("td#result").html("("+content.length+" / 최대 4500자)");
-				$("textarea#content").on("propertychange change keyup paste");
-				
+				$("td#result").html("(4500 / 최대 4500자)");
 				return;				
 		    }
-
 			return; 
-			
 	};
 	
 	function textarea_bind() {
-		alert("bind 함수가 실행되었습니다.");
+		
+		var content=$("textarea#content").val();
+		$("textarea#content").val(content.substring(0, 4500));
 		$('textarea#content').bind({
-			change: textarea_analysis,
-			keydown: textarea_analysis,
-			keyup: textarea_analysis,
-			hover:textarea_analysis,
-			//mousemove: textarea_analysis,
-			//auxclick:textarea_analysis,
-			copy:textarea_analysis,
-			mouseup: textarea_analysis,
-			mousedown: textarea_analysis,
-			mouseout: textarea_analysis,
-			mouseover: textarea_analysis,
-			
-			//click: textarea_analysis,
-			focus : textarea_analysis
+			paste : textarea_analysis,
+			input : textarea_analysis,
+			propertychange : textarea_analysis
 		});
+		
 	};
 	
 	function textarea_unbind() {
-		
-		alert("unbind 함수가 실행되었습니다.");
-		//$("textarea#content").unbind("change");
-		$("textarea#content").unbind("keydown");
-		//$("textarea#content").unbind("keyup");
-		$("textarea#content").unbind("mousemove");
-		$("textarea#content").unbind("mouseup");
-		$("textarea#content").unbind("mousedown");
-		//$("textarea#content").unbind("auxclick");
-		//$("textarea#content").unbind("hover");
-		$("textarea#content").unbind("mouseout");
-		$("textarea#content").unbind("mouseover");
-		$("textarea#content").unbind("click");
-		$("textarea#content").unbind("focus");
+
+		//alert("unbind 함수가 실행되었습니다.");
+		$("textarea#content").unbind("input");
+		$("textarea#content").unbind("paste");
+		$("textarea#content").unbind("propertychange");
 	};
 	
 	function subject_analysis(event) {
-				   
-			subject = $("input#subject").val().trim();
-			console.log("제목 글자 수"+subject.length);	
-		    if(subject.length > 80 ) {
-		        subject = $(this).val().trim();
-		        alert_content(2);
-		        $(this).val(subject.substring(0, 80));
-		        $("input#subject").focus();
-		        
-			    }
-		   
-		    return;
+
+		var subject = $("input#subject").val()
+		
+		if (subject.length > 75) {
+			subject = $(this).val().trim();
+			subject_unbind();
+			alert_content(2);
+			$(this).val(subject.substring(0, 75));
+			$("input#subject").focus();
+
+		}
+
+		return;
 	};
 	
-
+	function subject_bind() {
+		
+		// alert("제목 bind 함수를 실행합니다.");
+		var subject = $("input#subject").val();
+		$("input#subject").val(subject.substring(0, 75));
+		
+		$('input#subject').bind({
+			//change : subject_analysis,
+			paste : subject_analysis,
+			input : subject_analysis,
+			propertychange : subject_analysis
+		});
+		
+	};
+	
+	function subject_unbind() {
+	
+		$("input#subject").unbind("input");
+		$("input#subject").unbind("paste");
+		$("input#subject").unbind("propertychange");
+	};
+	
 	
 	function name_analysis(event) {
-		   
+	
 		name = $("input#name").val().trim();
-		
-		
-	    if(name.length > 5 ) {
-		    	
-	        subject = $(this).val().trim();
-	        alert_content(3);
-	        $(this).val(subject.substring(0, 5));
-	        $("input#name").focus();
-		        
-		    }
-	    return;
-};
+
+		if (name.length > 5) {
+
+			name = $(this).val().trim();
+			name_unbind();
+			alert_content(3);
+			$(this).val(name.substring(0, 5));
+			$("input#name").focus();
+
+		}
+		return;
+	};
 	
+	function name_bind() {
+		var name = $("input#name").val();
+		$("input#name").val(name.substring(0, 5));
+		$('input#name').bind({
+			paste : name_analysis,
+			input : name_analysis,
+			propertychange : name_analysis
+		});
+		
+	};
 	
+	function name_unbind() {
+
+		//alert("unbind 함수가 실행되었습니다.");
+		$("input#name").unbind("input");
+		//$("input#name").unbind("change");
+		$("input#name").unbind("paste");
+		$("input#name").unbind("propertychange");
+	};
+
 	function alert_content(a) {
-		
+
 		// 함수 실행 깃발
-		
-		if(n == 1) {
-			n=0;
+
+		if (n == 1) {
+			n = 0;
 			textarea_bind();
+			subject_bind();
+			name_bind();
 			return;
 		}
-		
+
 		// 내용
-		if(a == 1) {
+		if (a == 1) {
+			
 			alert("내용은 최대 4500자 까지 입력 가능합니다.");
-			textarea_unbind();
-			n=1;
-			alert_content(1);
-			  /* setTimeout(function() {
-				alert("내용은 최대 4500자 까지 입력 가능합니다.");
-				}, 1); */
-			  
+			
+			n = 1;
+			setTimeout(function() {
+			  alert_content(1);
+			}, 0.01);  
+
 		}
-		
+
 		// 제목
-		if(a == 2) {
+		if (a == 2) {
 			
+			alert("제목은 최대 75자 까지 입력 가능합니다.");
 			n = 1;
-			alert("제목은 최대 80자 까지 입력 가능합니다.");
-			/* setTimeout(function() {
-				alert("제목은 최대 80자 까지 입력 가능합니다.");
-				}, 1); */
-			n = 0;
+			setTimeout(function() {
+				alert_content(2);		
+				}, 0.01);
 		}
-		
+ 
 		// 이름
-		if(a == 3) {
-			
+		if (a == 3) {
+			alert("이름은 최대 5자 까지 입력 가능합니다.");
 			n = 1;
-			alert("이름은 최대 5자 까지 입력 가능합니다.");
-			
-			/* setTimeout(function() {
-			alert("이름은 최대 5자 까지 입력 가능합니다.");
-			}, 1); */
-			
-			n = 0;
+			setTimeout(function() {
+				alert_content(3);		
+				}, 0.01);
 		}
-		
+
 		return;
-		
-		
+
 	}; // end of alert 함수
-	
 </script>
 
 <div style="padding-left: 5%;">

@@ -47,7 +47,6 @@
 		order by imgno desc
 	</select>
 	
-	
 	<!-- === #47. 로그인 처리하기 === -->
 	<!-- 
 	<select id="getLoginMember" resultType="com.spring.board.model.MemberVO" parameterType="HashMap">     
@@ -204,7 +203,6 @@
 		    
 		           , lead(seq,1) over(order by seq desc) AS nextseq 
 		           , lead(subject,1) over(order by seq desc) AS nextsubject
-		           
 		           , groupno, fk_seq, depthno 
 		    from tbl_board
 		    where status = 1
@@ -213,10 +211,10 @@
 	</select>
 	-->
 	
-	
 	<!--  == #161. (댓글 및 답변글 쓰기 및 파일첨부가 있는 게시판에서) 글 1개 보여주기  == 
 	                  먼저 위의 #140 을 주석처리 한 다음에 아래와 같이 한다.
 	-->
+	
 	<select id="getView" parameterType="String" resultType="com.spring.board.model.BoardVO">
 		select previousseq, previoussubject
 		     , seq, fk_userid, name, subject, content, readCount, regDate
@@ -225,17 +223,19 @@
 		     , fileName, orgFilename, fileSize 
 		from 
 		(
-		    select   lag(seq,1) over(order by seq desc) AS previousseq 
-		           , lag(subject,1) over(order by seq desc) AS previoussubject
-		           , seq, fk_userid, name, subject, content, readCount
-		           , to_char(regDate, 'yyyy-mm-dd hh24:mi:ss') AS regDate
-		    
-		           , lead(seq,1) over(order by seq desc) AS nextseq 
-		           , lead(subject,1) over(order by seq desc) AS nextsubject
-		           , groupno, fk_seq, depthno
-		           , fileName, orgFilename, fileSize 
+		    select  lag(seq,1) over(order by seq desc) AS previousseq 
+		           ,lag(subject,1) over(order by seq desc) AS previoussubject
+		           ,seq, fk_userid, name, subject, content, readCount
+		           ,to_char(regDate, 'yyyy-mm-dd hh24:mi:ss') AS regDate
+		           ,lead(seq,1) over(order by seq desc) AS nextseq 
+		           ,lead(subject,1) over(order by seq desc) AS nextsubject
+		           ,groupno, fk_seq, depthno
+		           ,fileName, orgFilename, fileSize 
 		    from tbl_board
 		    where status = 1
+<!--  		    <if test='word != ""'>
+        	and lower(#{type}) like '%' || lower(#{word}) ||'%'
+        	</if>  -->
 		) V 
 		where V.seq = #{seq}		
 	</select>	
@@ -257,8 +257,8 @@
    
    <!--  === #88. 댓글쓰기(tbl_comment 테이블에 insert) === -->
    <insert id="addComment" parameterType="com.spring.board.model.CommentVO">
-    	insert into tbl_comment(seq, fk_userid, name, content, regDate, parentSeq, status)
-        values(commentSeq.nextval, #{fk_userid}, #{name}, #{content}, default, #{parentSeq}, default)
+    	insert into tbl_comment(seq, fk_userid, name, content, regDate, parentSeq, status, comment_pw)
+        values(commentSeq.nextval, #{fk_userid}, #{name}, #{content}, default, #{parentSeq}, default, #{comment_pw})
    </insert>
 	 
 	<!--  === #89. tbl_board 테이블에 commentCount 컬럼의 값을 1증가(update) === -->  
@@ -276,7 +276,7 @@
     
     <!-- == #93. 원게시글에 딸린 댓글들을 조회해오는 것 == -->
     <select id="getCommentList" parameterType="String" resultType="com.spring.board.model.CommentVO"> 
-        select name, content, to_char(regDate, 'yyyy-mm-dd hh24:mi:ss') AS regDate 
+        select seq, name, content, to_char(regDate, 'yyyy-mm-dd hh24:mi:ss') AS regDate  
     	from tbl_comment
     	where status = 1 and parentSeq = #{parentSeq}
     	order by seq desc
@@ -297,6 +297,7 @@
 		 3. myBatis 에서 제공하는 if 엘리먼트나 choose 엘리먼트 안에서 사용할때는 
 		       그냥 <if test="key명"> <when test="key명"> 으로 사용한다. 
 	-->
+	
     <!-- == #105. 페이징 처리를 안한 검색어가 있는 전체 글목록 보여주기 == -->
     <select id="boardListSearch" parameterType="HashMap" resultType="com.spring.board.model.BoardVO">
     	select seq, fk_userid, name, subject  
@@ -326,7 +327,7 @@
     	select count(*)       
 		from tbl_board
 		where status = 1
-		<if test='searchWord != ""'>
+		<if test="searchWord != ''">
 		and lower(${searchType}) like '%'|| lower(#{searchWord}) ||'%'
 		</if>
     </select>
@@ -389,31 +390,28 @@
                           먼저 위의 #148 을 주석처리한 이후에 아래와 같이 한다.
      -->
      
+     
     <select id="boardListSearchWithPaging" parameterType="HashMap" resultType="com.spring.board.model.BoardVO"> 
     	select seq, fk_userid, name, subject, readCount, regDate, commentCount  
              , groupno, fk_seq, depthno 
-             , fileName 
+             , fileName, status 
         from 
 		(
 		    select rownum AS rno
 		         , seq, fk_userid, name, subject, readCount, regDate, commentCount  
-		         , groupno, fk_seq, depthno 
-		         , fileName   
+		         , groupno, fk_seq, depthno, fileName, status
 		    from 
 		    (
 		        select seq, fk_userid, name, subject, readCount, 
 		               to_char(regDate, 'yyyy-mm-dd hh24:mi:ss') AS regDate,
-		               commentCount, 
-		               groupno, fk_seq, depthno
-		              ,fileName  
+		               commentCount, groupno, fk_seq, depthno, fileName, status  
 		        from tbl_board
-		        where status = 1 
 		        <if test='searchWord != ""'>
-				and lower(${searchType}) like '%'|| lower(#{searchWord}) ||'%' 
+				where lower(${searchType}) like '%'|| lower(#{searchWord}) ||'%' 
 				</if>
 		        start with fk_seq = 0 
 		        connect by prior seq = fk_seq    
-		        order siblings by groupno desc, seq asc  
+		        order siblings by groupno desc, seq desc  
 		    ) V 
 		) T 
 		where rno between #{startRno} and #{endRno} 
@@ -422,10 +420,10 @@
     
     <!-- === #131. 원게시물에 딸린 댓글들을 페이징처리해서 조회해오기(Ajax 로 처리) === -->
     <select id="getCommentListPaging" parameterType="HashMap" resultType="com.spring.board.model.CommentVO"> 
-    	select name, content, regDate
+    	select seq, name, content, regDate
 		from 
 		(
-		   select row_number() over(order by seq desc) as rno, name, content, to_char(regdate, 'yyyy-mm-dd hh24:mi:ss') as regDate 
+		   select seq, row_number() over(order by seq desc) as rno, name, content, to_char(regdate, 'yyyy-mm-dd hh24:mi:ss') as regDate 
 		   from tbl_comment
 		   where status = 1 and parentSeq = #{parentSeq}
 		) V
@@ -487,8 +485,34 @@
   			${reservationSeqArr[i]}
   		</foreach>
 	</update>
-
-
+	
+	<select id="checkPw" parameterType="HashMap" resultType="int">
+		select count(*) from tbl_board
+		where seq = #{seq} and pw = #{pw}
+	</select>
+	
+	
+	<delete id="delComment" parameterType="HashMap">
+		delete from tbl_comment
+		where seq = #{seq} and comment_pw = #{pw}
+	</delete>
+	
+	<update id="editComment" parameterType="HashMap">
+		update tbl_comment set content = #{content}
+		where seq = #{seq} and comment_pw = #{comment_pw}
+	</update>
+	     
+	 <update id="delCommentCnt" parameterType="HashMap">
+	 	update tbl_board set commentcount = commentcount-1
+	 	where seq = #{parentseq}
+	 </update>    
+	 
+	 
+	 <update id="updateState" parameterType="HashMap">
+		update tbl_board set status = 0, content = 0, subject = 0 where seq = #{seq}
+	 </update>
+	 
+	 
 </mapper>
 
 

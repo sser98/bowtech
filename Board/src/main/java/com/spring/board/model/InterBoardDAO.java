@@ -34,7 +34,8 @@ public interface InterBoardDAO {
 	List<BoardVO> boardListNoSearch();
 	
 	void setAddReadCount(String seq); // 글조회수 1증가 하기  
-	BoardVO getView(String seq); // 글1개 조회하기  
+	
+	BoardVO getView(String seq);// 글1개 조회하기  
 
 	// 1개글 수정하기
 	int edit(BoardVO boardvo);
@@ -68,10 +69,16 @@ public interface InterBoardDAO {
 
 	// 원게시물에 딸린 댓글들을 페이징처리해서 조회해오기(Ajax 로 처리) 
 	List<CommentVO> getCommentListPaging(Map<String, String> paraMap);
-
+	
 	// 원게시물에 딸린 댓글 totalPage 알아오기 (Ajax 로 처리) 
 	int getCommentTotalCount(Map<String, String> paraMap);
-
+	
+	// 원게시물에 딸린 댓글 삭제
+	int delComment(Map<String, String> paraMap);
+	
+	// 원게시물에 딸린 댓글 수정
+	int editComment(Map<String, String> paraMap);
+		
 	// tbl_board 테이블에서 groupno 컬럼의 최대값 구하기  
 	int getGroupnoMax();
 
@@ -82,7 +89,18 @@ public interface InterBoardDAO {
 	// === #185. Spring Scheduler(스프링스케줄러)7. 
     // === Spring Scheduler(스프링 스케줄러)를 사용한 email 발송하기 === 
 	List<Map<String, String>> getReservationList();
+	
 	void updateMailSendCheck(Map<String, String[]> paraMap);
+
+	int checkPw(Map<String, String> checkPara);
+	
+	// 댓글갯수 감소
+	void delCommentCnt(Map<String, String> paraMap);
+	
+	// 글 상태 변경하기
+	int updateState(Map<String, String> paraMap);
+
+	
 	
 }
 

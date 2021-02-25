@@ -1,5 +1,7 @@
 package com.spring.board.common;
 
+import java.net.URLDecoder;
+
 import javax.servlet.http.HttpServletRequest;
 
 
@@ -14,6 +16,7 @@ public class MyUtil {
 		String queryString = request.getQueryString();
 		// currentShowPageNo=15&sizePerPage=5&searchType=name&searchWord=홍승의 
 		
+		
 		if(queryString != null) {
 			currentURL += "?" + queryString;
 		 // http://localhost:9090/MyMVC/member/memberList.up?currentShowPageNo=15&sizePerPage=5&searchType=name&searchWord=홍승의 
@@ -27,6 +30,7 @@ public class MyUtil {
 		//   27        =           21                +        6
 		
 		currentURL = currentURL.substring(beginIndex + 1);
+		// 앞에 프로젝트명 부분을 삭제하고 순수경로만 남기기위하여 ;
 		//           member/memberList.up?currentShowPageNo=15&sizePerPage=5&searchType=name&searchWord=홍승의 
 		
 		return currentURL;
@@ -63,10 +67,6 @@ public class MyUtil {
 		return html; 
 		
 	}
-	
-	
-	
-	
 	
 	
 	

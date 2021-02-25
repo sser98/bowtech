@@ -139,6 +139,7 @@ public class BoardDAO implements InterBoardDAO {
 	public BoardVO getView(String seq) {
 		BoardVO boardvo = sqlsession.selectOne("board.getView", seq);
 		return boardvo;
+		
 	}
 
 
@@ -273,6 +274,48 @@ public class BoardDAO implements InterBoardDAO {
 	public void updateMailSendCheck(Map<String, String[]> paraMap) {
 		sqlsession.update("board.updateMailSendCheck", paraMap);
 	}
+
+
+	@Override
+	public int checkPw(Map<String, String> checkPara) {
+		
+		int n = sqlsession.selectOne("board.checkPw", checkPara);
+		return n;
+	}
+
+
+	@Override
+	public int delComment(Map<String, String> paraMap) {
+		int n = sqlsession.delete("board.delComment", paraMap);
+		return n;
+	}
+
+
+	@Override
+	public int editComment(Map<String, String> paraMap) {
+		int n = sqlsession.update("board.editComment", paraMap);
+		return n;
+	}
+
+
+	@Override
+	public void delCommentCnt(Map<String, String> paraMap) {
+		sqlsession.update("board.delCommentCnt", paraMap); 
+		
+	}
+
+
+	@Override
+	public int updateState(Map<String, String> paraMap) {
+		int n=sqlsession.update("board.updateState", paraMap);
+		return n;
+	}
+
+
+
+	
+
+
 	
 	
 	

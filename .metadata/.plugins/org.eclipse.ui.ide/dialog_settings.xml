@@ -107,14 +107,14 @@
 		<item value="org.springsource.sts:3.9.13.202006181137-RELEASE"/>
 	</list>
 	<section name="org.eclipse.text.quicksearch.internal.ui.QuickSearchDialog.DIALOG_SETTINGS">
-		<item key="LAST_QUERY" value="add.action"/>
+		<item key="LAST_QUERY" value="edit"/>
 		<item key="PATH_FILTER" value=""/>
 		<item key="CASE_SENSITIVE" value="true"/>
 		<item key="KEEP_OPEN" value="false"/>
 		<list key="COLUMN_WIDTHS">
 			<item value="40"/>
-			<item value="576"/>
-			<item value="1474"/>
+			<item value="960"/>
+			<item value="1064"/>
 		</list>
 		<list key="SASH_WEIGHTS">
 			<item value="714"/>
@@ -123,9 +123,15 @@
 		<section name="DialogBoundsSettings">
 			<item key="DIALOG_HEIGHT" value="1251"/>
 			<item key="DIALOG_WIDTH" value="2144"/>
-			<item key="DIALOG_X_ORIGIN" value="355"/>
-			<item key="DIALOG_Y_ORIGIN" value="124"/>
+			<item key="DIALOG_X_ORIGIN" value="11"/>
+			<item key="DIALOG_Y_ORIGIN" value="70"/>
 			<item key="DIALOG_FONT_NAME" value="1|맑은 고딕|9.0|0|WINDOWS|1|-18|0|0|0|400|0|0|0|1|0|0|0|0|맑은 고딕"/>
 		</section>
+	</section>
+	<section name="CleanDialogSettings">
+		<item key="TOGGLE_SELECTED" value="false"/>
+		<item key="DIALOG_WIDTH" value="666"/>
+		<item key="DIALOG_HEIGHT" value="482"/>
+		<item key="DIALOG_FONT_NAME" value="1|맑은 고딕|9.0|0|WINDOWS|1|-18|0|0|0|400|0|0|0|1|0|0|0|0|맑은 고딕"/>
 	</section>
 </section>

@@ -115,7 +115,7 @@ from
            , lead(seq,1) over(order by seq desc) AS nextseq 
            , lead(subject,1) over(order by seq desc) AS nextsubject
     from tbl_board
-    where status = 1
+    where status = 1;
 ) V 
 where V.seq = 2;
 
@@ -180,6 +180,12 @@ create table tbl_comment
 ,constraint FK_tbl_comment_parentSeq foreign key(parentSeq) references tbl_board(seq) on delete cascade
 ,constraint CK_tbl_comment_status check( status in(1,0) ) 
 );
+
+ALTER TABLE 테이블명 DROP CONSTRAINT 제약이름;
+
+
+
+
 
 create sequence commentSeq
 start with 1
@@ -471,10 +477,9 @@ create table tbl_comment
 ,constraint CK_tbl_comment_status check( status in(1,0) ) 
 );
 
-
-commit;
 select * from tbl_board;
 
+commit;
 create sequence commentSeq
 start with 1
 increment by 1
@@ -501,8 +506,23 @@ end;
 
 commit;
 
-
-
+		    select rownum AS rno
+		         , seq, fk_userid, name, subject, readCount, regDate, commentCount  
+		         , groupno, fk_seq, depthno 
+		         , fileName   
+		    from 
+		    (
+		        select seq, fk_userid, name, subject, readCount, 
+		               to_char(regDate, 'yyyy-mm-dd hh24:mi:ss') AS regDate,
+		               commentCount, 
+		               groupno, fk_seq, depthno
+		              ,fileName  
+		        from tbl_board
+		        where status = 1 
+		        start with fk_seq = 0 
+		        connect by prior seq = fk_seq    
+		        order siblings by groupno desc, seq asc  
+		    ) V; 
 
 
 select *
@@ -562,12 +582,40 @@ from
         start with fk_seq = 0 
         connect by prior seq = fk_seq    --- connect by prior 다음에 나오는 컬럼 seq은 start with 되어지는 행의 컬럼이다.
                                          --- fk_seq 는 start with 되어지는 행이 아닌 다른행에 존재하는 컬럼이다.
-        order siblings by groupno desc, seq asc  
+        order siblings by groupno desc, seq desc    
         -- order siblings by 를 사용하는 이유는 그냥 정렬(order by)하면 계층구조가 깨진다.
         -- 그래서 계층구조를 그대로 유지하면서 동일한 groupno를 가진 행끼리 정렬을 하려면 siblings 를 써야만 한다.
     ) V 
 ) T 
 where rno between 1 and 10;
+
+
+--- *** 계층형 쿼리(답변형 게시판) *** ---
+select seq, fk_userid, name, subject, readCount, regDate, commentCount  
+     , groupno, fk_seq, depthno
+from 
+(
+    select rownum AS rno
+         , seq, fk_userid, name, subject, readCount, regDate, commentCount  
+         , groupno, fk_seq, depthno 
+    from 
+    (
+        select seq, fk_userid, name, subject, readCount, 
+               to_char(regDate, 'yyyy-mm-dd hh24:mi:ss') AS regDate,
+               commentCount, 
+               groupno, fk_seq, depthno 
+        from tbl_board
+        where status = 1
+        order by seq desc, groupno asc, depthno asc;
+        -- order siblings by 를 사용하는 이유는 그냥 정렬(order by)하면 계층구조가 깨진다.
+        -- 그래서 계층구조를 그대로 유지하면서 동일한 groupno를 가진 행끼리 정렬을 하려면 siblings 를 써야만 한다.
+    ) V 
+) T 
+where rno between 1 and 10;
+
+
+
+select * from tbl_board;
 
 
 --- *** tbl_member 테이블에 존재하는 제약조건 조회하기 *** ---
@@ -580,6 +628,7 @@ drop constraint CK_TBL_MEMBER_POINT;
 
 
 select * from tbl_member;
+
 
 -- ////////////////////////////////////////////////////////// --
 ------------ 채팅을 위해서 학생들을 가입시킨 것임. --------------------
@@ -714,7 +763,103 @@ SET DEFINE OFF;
 
 select * from tbl_board;
 
+    	select count(*)       
+		from tbl_board
+		where status = 1
+        and subject like '%'|| '페이징' ||'%';
+
+select rownum  from tbl_board;
 
 
+select /* INDEX_DESC(tbl_board pk board) */ * from tbl_board;
 
 
+-- 조회되어 나온 값의 첫번째 행을 기준으로 이전값을 반환함
+-- 말의 뜻은 seq로 order by 했을때 해당 첫번째의 이번값이라면..
+select currentseq, previousseq, previoussubject , nextseq , nextsubject
+ from
+ (
+    select seq as currentseq
+           ,lag(seq,1)  over(order by seq desc) AS previousseq
+           ,lag(subject,1)  over(order by subject desc) AS previoussubject
+           ,lead(seq,1)  over(order by seq desc) AS nextseq
+           ,lead(subject,1) over(order by subject desc) AS nextsubject
+    from tbl_board
+  ) V  
+
+
+-- lag 함수와 lead 함수를 이용하여 이전 글과 다음글을 가져옴 seq로
+
+
+select previousseq, previoussubject
+		     , seq, fk_userid, name, subject, content, readCount, regDate
+		     , nextseq, nextsubject
+		     , groupno, fk_seq, depthno 
+		     , fileName, orgFilename, fileSize 
+		from 
+		(
+		    select  lag(seq,1) over(order by seq desc) AS previousseq 
+		           ,lag(subject,1) over(order by seq desc) AS previoussubject
+		           ,seq, fk_userid, name, subject, content, readCount
+		           ,to_char(regDate, 'yyyy-mm-dd hh24:mi:ss') AS regDate
+		           ,lead(seq,1) over(order by seq desc) AS nextseq 
+		           ,lead(subject,1) over(order by seq desc) AS nextsubject
+		           ,groupno, fk_seq, depthno
+		           ,fileName, orgFilename, fileSize 
+		    from tbl_board
+		    where status = 1
+        	and lower(subject) like '%' || lower('페이징') ||'%'
+        ) V   
+		where V.seq = 230;
+        
+commit;
+
+
+select seq, fk_userid, name, subject, readCount, regDate, commentCount  
+             , groupno, fk_seq, depthno 
+             , fileName
+        from 
+		(
+		    select rownum AS rno
+		         , seq, fk_userid, name, subject, readCount, regDate, commentCount  
+		         , groupno, fk_seq, depthno 
+		         , fileName
+		    from 
+		    (
+		        select seq, fk_userid, name, subject, readCount, 
+		               to_char(regDate, 'yyyy-mm-dd hh24:mi:ss') AS regDate,
+		               commentCount, groupno, fk_seq, depthno, fileName, status  
+		        from tbl_board
+				where lower(subject) like '%'|| lower('1') ||'%' 
+		        start with fk_seq = 0 
+		        connect by prior seq = fk_seq    
+		        order siblings by groupno desc, seq desc;  
+		    ) V 
+		) T 
+		where rno between 1 and 10; 
+
+
+select seq, fk_userid, name, subject, readCount, regDate, commentCount  
+     , groupno, fk_seq, depthno
+from 
+(
+    select rownum AS rno
+         , seq, fk_userid, name, subject, readCount, regDate, commentCount  
+         , groupno, fk_seq, depthno 
+    from 
+    (
+        select seq, fk_userid, name, subject, readCount, 
+               to_char(regDate, 'yyyy-mm-dd hh24:mi:ss') AS regDate,
+               commentCount, 
+               groupno, fk_seq, depthno 
+        from tbl_board
+        where status = 1 
+        start with fk_seq = 0 
+        connect by prior seq = fk_seq    --- connect by prior 다음에 나오는 컬럼 seq은 start with 되어지는 행의 컬럼이다.
+                                         --- fk_seq 는 start with 되어지는 행이 아닌 다른행에 존재하는 컬럼이다.
+        order siblings by groupno desc, seq desc    
+        -- order siblings by 를 사용하는 이유는 그냥 정렬(order by)하면 계층구조가 깨진다.
+        -- 그래서 계층구조를 그대로 유지하면서 동일한 groupno를 가진 행끼리 정렬을 하려면 siblings 를 써야만 한다.
+    ) V 
+) T 
+where rno between 1 and 10;

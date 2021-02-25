@@ -8,15 +8,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class BoardVO {
 
-	private String seq;          // 글번호 
-	private String fk_userid;    // 사용자ID
-	private String name;         // 글쓴이 
-	private String subject;      // 글제목
-	private String content;      // 글내용 
-	private String pw;           // 글암호
-	private String readCount;    // 글조회수
-	private String regDate;      // 글쓴시간
-	private String status;       // 글삭제여부   1:사용가능한 글,  0:삭제된글 
+	private String seq;              // 글번호 
+	private String fk_userid;        // 사용자ID
+	private String name;             // 글쓴이 
+	private String subject;          // 글제목
+	private String content;          // 글내용 
+	private String pw;               // 글암호
+	private String readCount;        // 글조회수
+	private String regDate;          // 글쓴시간
+	private String status;           // 글삭제여부   1:사용가능한 글,  0:삭제된글 
 	private String previousseq;      // 이전글번호
 	private String previoussubject;  // 이전글제목
 	private String nextseq;          // 다음글번호

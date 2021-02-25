@@ -1,34 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
-		<item key="selection" value="alert_content"/>
+		<item key="selection" value="updateState"/>
 		<item key="wrap" value="true"/>
 		<item key="casesensitive" value="false"/>
 		<item key="wholeword" value="false"/>
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
-			<item value="alert_content"/>
-			<item value="textarea_analysis"/>
-			<item value="onchang"/>
-			<item value="작성자"/>
-			<item value="subjectVal"/>
-			<item value="subject"/>
-			<item value="sub"/>
-			<item value="Name"/>
-			<item value="name"/>
-			<item value="글번호"/>
-			<item value="edit.action"/>
-			<item value="add.action"/>
-			<item value="수정"/>
-			<item value="페이징"/>
-			<item value="성명"/>
+			<item value="updateState"/>
+			<item value="del"/>
+			<item value="ff"/>
+			<item value="item.content"/>
+			<item value="]]"/>
+			<item value="cdata"/>
+			<item value="답변글"/>
+			<item value="답변글인경우"/>
+			<item value="글삭제"/>
+			<item value="글 삭제"/>
+			<item value="delete"/>
+			<item value="delboard"/>
+			<item value="boardList"/>
+			<item value="edit"/>
+			<item value="delCommentCnt"/>
 		</list>
 		<list key="replacehistory">
 		</list>
 	</section>
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
-		<item key="DIALOG_X_ORIGIN" value="897"/>
+		<item key="DIALOG_X_ORIGIN" value="879"/>
 		<item key="DIALOG_Y_ORIGIN" value="200"/>
 		<item key="DIALOG_WIDTH" value="393"/>
 		<item key="DIALOG_HEIGHT" value="523"/>

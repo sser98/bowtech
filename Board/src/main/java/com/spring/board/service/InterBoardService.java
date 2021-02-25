@@ -85,7 +85,21 @@ public interface InterBoardService {
     // 또는 e메일 자동 발송 대신에 휴대폰 문자를 자동 발송하는 것도 가능하다.  	
     void reservationEmailSending() throws Exception;
 
-	int checkEdit(Map<String, String> paraMap); 
+	int checkEdit(Map<String, String> paraMap);
+	
+	// 비밀번호 체크
+	int checkPw(Map<String, String> checkPara);
+
+	// 원게시물에 딸린 댓글 삭제
+	int delComment(Map<String, String> paraMap);
+	
+	// 원게시물에 딸린 댓글 수정
+	int editComment(Map<String, String> paraMap);
+	
+
+
+
+	 
 	
 }
 
