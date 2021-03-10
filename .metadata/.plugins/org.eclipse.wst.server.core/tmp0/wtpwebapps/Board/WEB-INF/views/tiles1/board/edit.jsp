@@ -1,65 +1,85 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+	pageEncoding="UTF-8"%>
 
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
-<% String ctxPath = request.getContextPath(); %>    
+<%
+	String ctxPath = request.getContextPath();
+%>
 
 <style type="text/css">
-		
-	th {
-		font-family: "제주고딕";
-		font-size: 15pt;
-	}
-	
-	textarea, input[type=text] {
-		font-family: "제주고딕";
-		font-size: 10pt;
-	} 
-	
-	table, th, td, input, textarea {border: solid gray 1px;}
-	
-	#table {border-collapse: collapse;
-	 		width: 98%;
-	 		}
-	 		
-	#table th, #table td{padding: 5px;}
-	#table th{width: 10%; background-color: #DDDDDD; text-align: center;}
-	#table td{width: 80%;}
-	.long {width: 470px;}
-	.short {width: 120px;}
-	
-	span#error {
-   	display: none;
-   	color: red;
-   }
-	
-	input#subject {
-		width: 100%;
-	}
-	
-	textarea {
-		width: 100%;
-		resize: none;
-	}
-	
-	div#btn {
-		display: flex;
-		align-items: center;
-		justify-content : center;
-	}
-	
-	button {
-		margin-top: 20px;
-		margin-right: 20px;
-		margin-bottom: 20px;
-		font-size: 10pt;
-	}
-	
-	div#lost {
-		display: flex;
-		flex-direction: column;
-	}
+th {
+	font-family: "제주고딕";
+	font-size: 15pt;
+}
+
+textarea, input[type=text] {
+	font-family: "제주고딕";
+	font-size: 10pt;
+}
+
+table, th, td, input, textarea {
+	border: solid gray 1px;
+}
+
+#table {
+	border-collapse: collapse;
+	width: 98%;
+}
+
+#table th, #table td {
+	padding: 5px;
+}
+
+#table th {
+	width: 10%;
+	background-color: #DDDDDD;
+	text-align: center;
+}
+
+#table td {
+	width: 80%;
+}
+
+.long {
+	width: 470px;
+}
+
+.short {
+	width: 120px;
+}
+
+span#error {
+	display: none;
+	color: red;
+}
+
+input#subject {
+	width: 100%;
+}
+
+textarea {
+	width: 100%;
+	resize: none;
+}
+
+div#btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+button {
+	margin-top: 20px;
+	margin-right: 20px;
+	margin-bottom: 20px;
+	font-size: 10pt;
+}
+
+div#lost {
+	display: flex;
+	flex-direction: column;
+}
 </style>
 
 <script type="text/javascript">
@@ -69,9 +89,30 @@
 
 	var checkpwVal = 0; // 암효 맞는지 틀렸는지 여부
 	
+	
+	var indexNumberArray= new Array();
+	var totalFileSize = 0;
+	var total='${sumsize}';
+	
+	
 	$(document).ready(function(){
 		
+		var lo=(total/(1024*1024)).toFixed(2);
+        $("strong#totalSize").html("( "+lo+"MB / 20MB )");
+        
 		textarea_analysis();
+		
+/*         indexNumberArray.push(i);
+        var index=3;
+        indexNumber+=index+",";
+        indexNumber+=1+",";
+        alert(indexNumber); */
+        
+        
+ 		$('input#file').bind({
+			input : file_analysis
+		}); 
+ 		
 		
 		$('textarea#content').bind({
 			input : textarea_analysis,
@@ -284,7 +325,7 @@
 function checkpw() {
 		
 		$.ajax({
-    		url:"<%= ctxPath%>/checkpw.action",
+    		url:"<%=ctxPath%>/checkpw.action",
     		data:{"seq":${boardvo.seq},
     			  "pw":$("input#pw").val()	
     			},  
@@ -305,18 +346,19 @@ function checkpw() {
     			
     			else {
     				
-    			
-    				var frm = document.editFrm;
+    				var indexString=indexNumberArray.join(",");
+    				$("input#indexString").val(indexString);
+    				
+    				alert(indexString);
+				
+				    var frm = document.editFrm;
     				frm.method = "POST";
     				frm.action = "<%= ctxPath%>/editEnd.action";
-    				frm.submit();
+    				frm.submit(); 
+    				
     				
     				return;
     			}
-    			
-
-    			
- 
     			
     		},
     		
@@ -327,64 +369,261 @@ function checkpw() {
 		
 	}// end of function isExistEmailCheck()--------------------------
 	
+	
+function file_analysis(number) {
+		
+        var fileInput = document.getElementById("file");
+        var files = fileInput.files;
+        var file;
+         
+        var html="";
+        
+        // 파일크기만 별도로 호출하는게 편할듯.
+        
+        var orgFilenameList='${orgFilenameList}';
+        var fileSizeArray = '${fileSizeArray}';
+        
+	    var filesSize = '${filesSize}';
+	    var filesSizeArray=filesSize.split(",");
+	    
+        var orginfiles="";
+        var oldFileCnt=$("ul#oldFileList>li").length;
+        var orgFilename ='${orgFilename}';
+        
+        
+        
+        if( files.length + oldFileCnt  > 5) {
+        	alert("파일 갯수는 최대 5개까지 첨부 가능합니다.");
+        	$("input#file").val("");
+        	$("ul#fileList").html("");
+            $("strong#totalSize").html("( "+total+"MB / 20MB )");
+        	return false;
+        }
+        
+        
+        
+        for (var i = 0; i < files.length; i++) {
+             
+            file = files[i];
+            
+            console.log(file);
+            var maxSize = 20 * 1024 * 1024; // 20MB
+            
+            totalFileSize+=file.size;
+						            
+            // 크기 체크 
+             if(totalFileSize+total > maxSize) {
+            	alert("최대 20MB까지 사용이 가능합니다.");
+            	$("input#file").val("");
+            	$("ul#fileList").html("");
+                $("strong#totalSize").html("( "+total+"MB / 20MB )");
+            	return false;
+            }
+            
+            
+            // 파일 확장자 체크 
+            var IMG_FORMAT = "\\.(bmp|gif|jpg|jpeg|png)$";
+
+             if( (new RegExp(IMG_FORMAT, "i")).test(file.name) ) {
+            	html+="<li>"+file.name+" ("+file.size+" Byte) </li>";
+            	}
+             
+            else {
+            	alert("bmp, gif, jpg, jpeg, png 파일만 첨부하실 수 있습니다.");
+            	$("input#file").val("");
+            	$("ul#fileList").html("");
+                $("strong#totalSize").html("( "+total+"MB / 20MB )");
+            	return false;
+            }
+             
+             
+             
+        } // end of for 
+        
+        	
+            // html 첨부가 안된다??
+            		
+		    // 기존파일을 다지우지 않았을 경고 추가파일이 있을경우 
+			if(Number(total) != 0 && files.length != 0) {
+				totalFileSize+=total;
+				var totalSize = (totalFileSize/(1024*1024)).toFixed(2);
+		        $("strong#totalSize").html("( "+totalSize+"MB / 20MB )");
+		        $("ul#newFileList").html(html);
+		        
+		        alert("기존파일을 다지우지 않았을 경고 추가파일이 있을경우");
+        		}
+			
+		    
+			// 파일도 다지우고 첨부파일도 없는 경우에			
+			if(files.length == 0 && oldFileCnt == 0 ) {
+				var totalSize = (totalFileSize/(1024*1024)).toFixed(2);
+		        $("strong#totalSize").html("( 0MB / 20MB )");
+		        $("ul#newFileList").html(html);
+		        
+		        alert("파일도 다지우고 첨부파일도 없는 경우에");
+			}
+			
+			// 기존파일 다 삭제하고 추가 했을 파일이 있을경우		
+			if(files.length != 0 && oldFileCnt == 0 ) {
+				var totalSize = (totalFileSize/(1024*1024)).toFixed(2);
+		        $("strong#totalSize").html("( "+totalSize+"0MB / 20MB )");
+		        $("ul#newFileList").html(html);
+		        
+		        alert("기존파일 다 삭제하고 추가 했을 파일이 있을경우");
+			}
+			
+			
+        
+	};
+	
+	function delFile() {
+		
+       	$("input#file").val("");
+    	$("ul#newFileList").html("");
+    	
+    	var lo=(total/(1024*1024)).toFixed(2);
+        $("strong#totalSize").html("( "+lo+"MB / 20MB )");
+		return;
+	}; 
+	
+	
+	
+	function delOldFile(i) {
+		
+		
+		$("li").remove("#file"+i);
+		indexNumberArray.push(i);
+		
+		var filesSize = '${filesSize}';
+	    var filesSizeArray=filesSize.split(",");
+	    
+	    total=total-filesSizeArray[i];
+	    file_analysis();
+	
+		return;
+		
+	};
+	
+	
+	
+	
+	
 </script>
 
 <div style="padding-left: 5%;">
-	
+
 	<c:if test="${empty boardvo}">
 		<div id="lost">
-				<h2>요청하신 페이지를 찾을 수 없습니다.</h2>
-				<h5>입력한 주소가 잘못되었거나, 사용이 일시 중단되어 요청하신 페이지를 찾을 수 없습니다.</h5>
-				<h5>서비스 이용에 불편을 드려 죄송합니다.</h5>
+			<h2>요청하신 페이지를 찾을 수 없습니다.</h2>
+			<h5>입력한 주소가 잘못되었거나, 사용이 일시 중단되어 요청하신 페이지를 찾을 수 없습니다.</h5>
+			<h5>서비스 이용에 불편을 드려 죄송합니다.</h5>
 		</div>
-		
+
 		<div id="btn">
 			<div>
-				<button type="button" onclick="javascript:location.href='<%= request.getContextPath()%>/list.action'">게시판 메인으로</button>
+				<button type="button" title="게시판 메인으로 돌아가기"
+					onclick="javascript:location.href='<%=request.getContextPath()%>/list.action'">게시판
+					메인으로</button>
 			</div>
-		</div>	
+		</div>
 	</c:if>
-	
-	<c:if test="${not empty boardvo}">
-	<h1>글수정</h1>
 
-			<form name="editFrm">
-				<table id="table">
-					<tr>
-						<th>작성자</th>
-						<td><c:out value="${boardvo.name}"></c:out> 
-						<input type="hidden" name="seq" value="${boardvo.seq}" /> 
-						<input type="hidden" name="name" value="${boardvo.name}" />
-						
-						</td>
-					</tr>
+	<c:if test="${not empty boardvo}">
+		<h1>글수정</h1>
+
+		<form name="editFrm" enctype="multipart/form-data">
+			<table summary="수정할 게시글의 내용을 담은 표 "  id="table">
+			<caption>수정할 게시글 표</caption>
+				<tr>
+					<th scope="row">작성자</th>
+					<td><c:out value="${boardvo.name}"></c:out> <input
+						type="hidden" name="seq" value="${boardvo.seq}" /> <input
+						type="hidden" name="name" value="${boardvo.name}" /></td>
+				</tr>
+				
+				<tr>
+					<th scope="row">작성일</th>
+					<td><c:out value="${boardvo.regDate}"></c:out>
+					    <input type="hidden" name="regDate" id="regDate"
+						class="long" value="<c:out value="${boardvo.regDate}"></c:out>"
+					/></td>
+				</tr>
+				
+				
+				<tr>
+					<th scope="row"><label for="subject">제목</label></th>
+					<td><input type="text" name="subject" id="subject" title="변경할 제목 입력"
+						class="long" value="<c:out value="${boardvo.subject}"></c:out>"
+						maxlength='200' /></td>
+				</tr>
+
+				<tr>
+					<th scope="row"><label for="content">내용</label></th>
+					<td><textarea rows="10"  title="변경할 내용 입력" cols="100" style="height: 612px;"
+							name="content" id="content"><c:out
+								value="${boardvo.content}"></c:out></textarea></td>
+				</tr>
+
+				<tr>
+					<th scope="row">글자 수</th>
+					<td id="result"></td>
 					
-					<tr>
-						<th>제목</th>
-						<td><input type="text" name="subject" id="subject" class="long" value="<c:out value="${boardvo.subject}"></c:out>" maxlength='200' /></td>
-					</tr>
-					<tr>
-						<th>내용</th>
-						<td><textarea rows="10" cols="100" style="height: 612px;" name="content" id="content"><c:out value="${boardvo.content}"></c:out></textarea></td>
-					</tr>
-					<tr>
-						<th>글자 수</th>
-						<td id="result"></td>
-					</tr>
-					<tr>
-						<th>글암호</th>
-						<td><input type="password" name="pw" id="pw" class="short" />
-							<span id="error" class="error">암호는 영문자,숫자,특수기호가 혼합된 8~15글자로 입력하세요.</span></td>
-					</tr>
-					<%-- <input type="text" style="width: 100%;" name="gobackURL" value="${gobackURL}"/> --%>
-				</table>
-	
-				<div id="btn">
-					<div>
-						<button type="button" id="btnUpdate">완료</button>
-						<button type="button" onclick="javascript:history.back()">취소</button>
-					</div>
+					
+				</tr>
+
+ 				<tr>
+					<th scope="row"><label for="file">파일추가</label> </th>
+					<td><input multiple="multiple" type="file" name="attach" id="file" />
+						<button title="파일 삭제 하기" type="button" style="display: inline;"
+							onclick="delFile();">파일 삭제</button>
+						<div>
+							<ul id="newFileList">
+
+							</ul>
+						</div>
+					</td>
+				</tr>
+		
+				<tr>
+					<th scope="row">기존파일</th>
+					<td>
+					
+						<div>
+							<ul id="oldFileList">
+								<c:forEach var="orgFileName" items="${orgFilenameList}"
+									varStatus="i">
+									<li title="${i.index+1} 번째 파일"   id="file${i.index}" >${orgFileName}
+										<button title="${i.index+1} 번째 파일 삭제하기" type="button" onclick="delOldFile(${i.index});">파일삭제</button>
+									</li>
+								</c:forEach>
+							</ul>
+							<input type="hidden" name="indexString"id="indexString"></input>
+						</div>
+					</td>
+				</tr>
+
+				<tr>
+					<th scope="row">파일크기</th>
+					<td><strong id="totalSize">${sumMB} MB / 20MB</strong></td> 
+				</tr>
+				<tr>
+					<th scope="row">글암호</th>
+					<td><input title="글 암호를 입력하세요 " type="password" name="pw" id="pw" class="short" />
+						<input type="hidden" name="gobackURL" value="${gobackURL}"/>
+						<span id="error" title="암호는 영문자,숫자,특수기호가 혼합된 8~15글자로
+							입력하세요." class="error">암호는 영문자,숫자,특수기호가 혼합된 8~15글자로
+							입력하세요.</span></td>
+				</tr>
+				<%-- <input type="text" style="width: 100%;" name="gobackURL" value="${gobackURL}"/> --%>
+
+			</table>
+
+			<div id="btn">
+				<div>
+					<button title="글 수정 완료하기" type="button" id="btnUpdate">완료</button>
+					<button title="취소하기 " type="button" onclick="javascript:history.back()">취소</button>
 				</div>
-			</form>
-	</c:if>		
-	</div>
+			</div>
+		</form>
+	</c:if>
+</div>

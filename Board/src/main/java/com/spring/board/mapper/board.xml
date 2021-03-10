@@ -26,6 +26,7 @@
 		 3. myBatis 에서 제공하는 if 엘리먼트나 choose 엘리먼트 안에서 사용할때는 
 		       그냥 <if test="key명"> <when test="key명"> 으로 사용한다. 
 	-->
+	
 	<insert id="test_insert_map" parameterType="HashMap" >
 		insert into spring_test(no, name, writeday)
 		values(#{no}, #{name}, default)
@@ -242,19 +243,40 @@
 
     <!-- == #75. 1개글 수정하기 == -->
     <update id="edit" parameterType="com.spring.board.model.BoardVO">
-    	update tbl_board set subject = #{subject}
-    	                   , content = #{content}
+    	update tbl_board set subject = #{subject}, content = #{content}
     	where seq = #{seq} and pw = #{pw} 
     </update>
     
-    
+    <!-- 파일 수정하기  -->
+    <update id="editwithFile" parameterType="com.spring.board.model.BoardVO">
+
+	update tbl_board set
+	subject = #{subject},
+	content = #{content}
+	<if test='orgFilename == ""'>
+		,fileName = default
+		,orgFilename = default
+		,fileSize = default
+	</if>
+	
+	
+	<if test='orgFilename != ""'>
+		,fileName = #{fileName, jdbcType=VARCHAR}
+		,orgFilename = #{orgFilename, jdbcType=VARCHAR}
+		,fileSize = #{fileSize, jdbcType=VARCHAR}
+	</if>
+	where seq = #{seq} and pw = #{pw}
+	
+	
+    			
+	 </update>  
+    	
    <!-- == #80. 1개글 삭제하기 == -->
    <delete id="del" parameterType="HashMap">
    		delete from tbl_board
    		where seq = #{seq} and pw = #{pw}
    </delete>
-   
-   
+		   
    <!--  === #88. 댓글쓰기(tbl_comment 테이블에 insert) === -->
    <insert id="addComment" parameterType="com.spring.board.model.CommentVO">
     	insert into tbl_comment(seq, fk_userid, name, content, regDate, parentSeq, status, comment_pw)
@@ -281,7 +303,6 @@
     	where status = 1 and parentSeq = #{parentSeq}
     	order by seq desc
     </select>
-    
     
     <!-- == #100. BoardAOP 클래스에 사용하는 것으로 특정 회원에게 특정 점수만큼 포인트를 증가하기 위한 것  -->
     <update id="pointPlus" parameterType="HashMap">
@@ -326,9 +347,8 @@
     <select id="getTotalCount" parameterType="HashMap" resultType="int">
     	select count(*)       
 		from tbl_board
-		where status = 1
 		<if test="searchWord != ''">
-		and lower(${searchType}) like '%'|| lower(#{searchWord}) ||'%'
+		where status = 1 and lower(${searchType}) like '%'|| lower(#{searchWord}) ||'%'
 		</if>
     </select>
     
@@ -458,8 +478,8 @@
 	    	values(boardSeq.nextval, #{fk_userid}, #{name}, #{subject}, #{content}, #{pw}, default, default, default, #{groupno}, #{fk_seq}, #{depthno}+1, #{fileName}, #{orgFilename}, #{fileSize})  
 		</if>
 	</insert>
-
-
+	
+	
     <!-- === #187. Spring Scheduler(스프링스케줄러)9. === -->
     <!-- === Spring Scheduler(스프링 스케줄러)를 사용한 email 발송하기 === -->
     <resultMap type="HashMap" id="getReservationListMap">
@@ -478,6 +498,7 @@
 		and to_char(reservationDate, 'yyyy-mm-dd') = to_char(sysdate+2, 'yyyy-mm-dd')
     </select>	    
 
+
 	<update id="updateMailSendCheck" parameterType="HashMap"> 
 		update tbl_reservation set mailSendCheck = 1
   		where reservationSeq IN 
@@ -491,7 +512,7 @@
 		where seq = #{seq} and pw = #{pw}
 	</select>
 	
-	
+		
 	<delete id="delComment" parameterType="HashMap">
 		delete from tbl_comment
 		where seq = #{seq} and comment_pw = #{pw}
@@ -509,10 +530,31 @@
 	 
 	 
 	 <update id="updateState" parameterType="HashMap">
-		update tbl_board set status = 0, content = 0, subject = 0 where seq = #{seq}
+		update tbl_board set status = 0, content = 0, subject = 0, fileName = 0, orgFilename= 0, fileSize = 0 where seq = #{seq}
 	 </update>
 	 
 	 
+	  <select id="boardListSearchNoPaging" parameterType="HashMap" resultType="com.spring.board.model.BoardVO"> 
+    	select seq, fk_userid, name, subject, readCount, regDate, commentCount,
+    	groupno, fk_seq, depthno, status 
+        from 
+			(
+		        select seq, fk_userid, name, subject, readCount, 
+		               to_char(regDate, 'yyyy-mm-dd hh24:mi:ss') AS regDate, 
+		               commentCount, groupno, fk_seq, depthno, status  
+		        from tbl_board
+		        where status = 1
+		        <if test='searchWord != ""'>
+				and lower(${searchType}) like '%'|| lower(#{searchWord}) ||'%' 
+				</if>
+		        start with fk_seq = 0 
+		        connect by prior seq = fk_seq    
+		        order siblings by groupno desc, seq desc  
+		    ) V 
+	</select>   
+	 
+	 
+	
 </mapper>
 
 

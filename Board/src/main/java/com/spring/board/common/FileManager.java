@@ -20,10 +20,11 @@ import org.springframework.stereotype.Component;
 // === #154. FileManager 클래스 생성하기 === 
 @Component 
 public class FileManager {
-
+	
 	// == 파일 업로드 하기 첫번째 방법 ==
 	// path : 업로드 할 파일의 저장 경로 
 	// 리턴값 : 서버에 저장된 새로운 파일명(예: 2020120809271535243254235235234.png)
+	
 	public String doFileUpload(byte[] bytes, String originalFilename, String path) throws Exception {
 		
 		String newFilename = null;
@@ -40,14 +41,18 @@ public class FileManager {
 		// 확장자 (예: 강아지  또는  강아지.png  또는   강.아.지.png)
 		// 강아지.png   ==> originalFilename.lastIndexOf(".") ==> 3
 		// 강.아.지.png ==> originalFilename.lastIndexOf(".") ==> 5
+		
+		
 		String fileExt = originalFilename.substring(originalFilename.lastIndexOf(".")); 
 		if(fileExt == null || "".equals(fileExt)) {
 			return null;
 		}
 		
+		
 		// 서버에 저장할 새로운 파일명을 만든다.
 		// 서버에 저장할 새로운 파일명이 동일한 파일명이 되지 않고 고유한 파일명이 되도록 하기 위해
 		// 현재의 년월일시분초에다가 현재 나노세컨즈nanoseconds 값을 결합하여 확장자를 붙여서 만든다.
+		
 		newFilename = String.format("%1$tY%1$tm%1$td%1$tH%1$tM%1$tS", Calendar.getInstance());
 		newFilename += System.nanoTime();
 		newFilename += fileExt;
@@ -55,8 +60,10 @@ public class FileManager {
 		
 		// 업로드할 경로가 존재하지 않는 경우 폴더를 생성한다.
 		File dir = new File(path);
+		
 		// 파라미터로 입력받은 문자열인 path(파일을 저장할 경로)를 실제 폴더로 만든다.
 		// 자바에서는 File 클래스를 사용하여 폴더 또는 파일을 생성 및 관리를 하게 된다. 
+		
 		
 		if(!dir.exists()) {
 			// 만약에 파일을 저장할 경로인 폴더가 실제로 존재하지 않는다면 
@@ -95,15 +102,18 @@ public class FileManager {
 		if(originalFilename==null||originalFilename.equals(""))
 			return null;
 		
+		
 		// 확장자
 		String fileExt = originalFilename.substring(originalFilename.lastIndexOf("."));
 		if(fileExt == null || fileExt.equals(""))
 			return null;
 		
+		
 		// 서버에 저장할 새로운 파일명을 만든다.
 		newFilename = String.format("%1$tY%1$tm%1$td%1$tH%1$tM%1$tS", Calendar.getInstance());
 		newFilename += System.nanoTime();
 		newFilename += fileExt;
+		
 		
 		// 업로드할 경로가 존재하지 않는 경우 폴더를 생성 한다.
 		File dir = new File(path);
@@ -131,6 +141,7 @@ public class FileManager {
 	// saveFilename : 서버에 저장된 파일명(현재의 년월일시분초에다가 현재 나노세컨즈nanoseconds 값을 결합하여 확장자를 붙여서 만든것)
 	// originalFilename : 클라이언트가 업로드한 파일명(파일명이 영어로 되어진 경우도 있지만 한글로 되어진 경우가 있다는 것에 유의하자)
 	// path : 서버에 저장된 경로
+	
 	public boolean doFileDownload(String saveFilename, String originalFilename, String path, HttpServletResponse response) {
 		
 		String pathname = path + File.separator + saveFilename;
@@ -151,6 +162,7 @@ public class FileManager {
 	       	originalFilename = new String(originalFilename.getBytes("UTF-8"),"8859_1");
 	       	// originalFilename.getBytes("UTF-8") 은 UTF-8 형태로 되어진 문자열 originalFilename 을 byte 형태로 변경한 후
 	       	// byte 형태로 되어진 것을 표준인 ISO-Latin1(혹은 Latin1 또는 8859_1) 형태로 인코딩한 문자열로 만든다.
+	       	
 		} catch(UnsupportedEncodingException e) { }
 		
 		
@@ -207,6 +219,7 @@ public class FileManager {
 				
 				return true; // 다운로드 해줄 파일이 존재하고 Exception 이 발생하지 않으면 true 를 리턴시킨다. 
 				
+				
 			} // end of if ------------------------------------	
 				
 		} catch(Exception e) { }
@@ -216,15 +229,22 @@ public class FileManager {
 	
 	
 	// == 파일 삭제 하기 ==
-	public void doFileDelete(String saveFilename, String path) throws Exception {
+	public static void doFileDelete(String[] fileNameArray, String path) throws Exception {
 		
-		String pathname = path + File.separator + saveFilename;
 		
-		File file = new File(pathname);
-		
-		if(file.exists()) {
-			file.delete();
+		for (String filename : fileNameArray) {
+			
+			String pathname = path + File.separator + filename;
+			
+			File file = new File(pathname);
+			
+			if(file.exists()) {
+				file.delete();
+			}
 		}
+		
+		System.out.println("파일을 성공적으로 삭제했습니다.");
+		
 	}
 	
 	// 이미지 폭

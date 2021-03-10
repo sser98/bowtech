@@ -84,6 +84,8 @@
 		font-size: 10pt;
 		font-family: 제주고딕; 
 		border: none;
+		padding: 0px;
+		margin: 0px;
 	}
 	
 	div#lost {
@@ -159,8 +161,39 @@
       	overflow: scroll;
       } 
       
+      span#pwResult {
+      	float: right;
+      }
       
-	
+      div#divpw {
+      	width: 100%;
+      }
+      
+      input#name {
+      	width: 100pt;
+      }
+      
+      input#pw {
+      	width: 100pt;
+      }
+      
+      span.sub_name {
+      	display: inline-block;
+      	width: 40pt;
+      	font-weight: 700;
+      }
+      
+	  div.sub_div {
+	  	margin-bottom: 3pt;
+	  }
+	  
+	  ul {
+	  	padding-inline-start: 0px;
+	  	margin-bottom: 0px;
+	  	list-style-type:  none;
+	  }
+		
+
 </style>
 
 <script type="text/javascript">
@@ -187,17 +220,21 @@
 		}); 
 		
 		
+		pw_bind(); // 댓글 글암호 이벤트
+		
 	 // goReadComment();  // 페이징처리 안한 댓글 읽어오기 
 	    goViewComment(1); // 페이징처리 한 댓글 읽어오기 
 		
+	    
 		$("span.move").hover(function(){
 			                   $(this).addClass("moveColor");
 		                    }
 		                    ,function(){
 		                       $(this).removeClass("moveColor");
 		                    });
-	
+		
 	}); // end of $(document).ready(function(){})----------------
+	
 	
 	// == 댓글쓰기 == //
 	function goAddWrite() {
@@ -205,15 +242,15 @@
 		var contentVal = $("textarea#commentContent").val().trim();
 		var nameVal = $("input#name").val().trim();
 		
-		if(contentVal == "") {
-			alert("댓글 내용을 입력하세요!!");
-			$("textarea#commentContent").focus();
-			return;
-		}
-		
 		if(nameVal == "") {
 			alert("이름을 입력하세요!!");
 			$("input#name").focus();
+			return;
+		}
+		
+		if(contentVal == "") {
+			alert("댓글 내용을 입력하세요!!");
+			$("textarea#commentContent").focus();
 			return;
 		}
 		
@@ -238,7 +275,8 @@
 			   	$("input#pw").focus();					   	
 			    return;
 			}
-						
+		
+			
 		var form_data = $("form[name=addWriteFrm]").serialize();
 		
 		$.ajax({
@@ -250,7 +288,7 @@
 				var n = json.n;
 				
 				if(n == 0) {
-					alert(json.name+"님의 포인트는 300점을 초과할 수 없으므로 댓글쓰기가 불가합니다.");
+					alert("오류 발생");
 				}
 				
 				else {
@@ -288,9 +326,6 @@
 				if(json.length > 0) {
 					$.each(json, function(index, item){
 						
-						var name=removeTag(item.name);
-						var content=removeTag(item.content);
-						
 						html += "<tr>";
 						html += "<td class='comment'>"+item.name+"</td>";
 						html += "<td>"+item.content+"</td>";
@@ -316,7 +351,7 @@
 	
 	
 	// === #127. Ajax로 불러온 댓글내용을 페이징처리 하기 === // 
-
+	
 	function goViewComment(currentShowPageNo) {
 		
 		$.ajax({
@@ -331,15 +366,11 @@
 					
 					$.each(json, function(index, item){
 						
-						var name=removeTag(item.name);
-						var content=removeTag(item.content); 
-						
-						
 						
 						html +="<div id=container>";
 				        html +="<hr>";
 				        html +="<div>";
-				        html +="<span id='name'>"+name+"</span>";
+				        html +="<span id='name'>"+item.name+"</span>";
 				        html +="<div class='dropdown'>"
 				        html +="<button class='btn btn-primary dropdown-toggle' type='button' data-toggle='dropdown'>";
 				        html +=" <span class='caret'></span></button>";
@@ -352,7 +383,7 @@
 				        html +=" <div id='date'>"+item.regDate+"</div>";
 				        html +=" <br>";
 				        html +=" <div id='content'>";
-				        html +=content+"</div>";
+				        html +=item.content+"</div>";
 				        html +=" </div>";
 						
 				      html+="<div class='modal fade' id='exampleModal"+index+"' tabindex='-1' role='dialog' aria-labelledby='exampleModalLabel' aria-hidden='true'>";
@@ -375,18 +406,6 @@
 				        html +="</div>";
 				      html+="</div>";
 						
-						
-	/* 					html +="<hr>";
-				        html +="<div>";
-				        html +="<span id='name'>"+name+"</span>";
-				        html +="<button id='event' onclick=''>태그</button>";
-				        html +="</div>";
-				        html +="<br>";
-
-				        html+="<div id='date'>"+item.regDate+"</div>";
-				        html+="<br>";
-				        html+="<div id='content'>"+content+"</div>";
-				        html+="<hr>"; */
 						
 					});
 					
@@ -426,6 +445,7 @@
 				type:"POST",
 				dataType:"JSON",
 				success:function(json){  // {"n", 1} OR {"n", 0}
+				
 					var n = json.n;
 					
 					if(n == 0) {
@@ -446,17 +466,13 @@
 						
 					}
 					
-					
 				},
 				
 				error: function(request, status, error){
 					alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
 			 	}
-			
 			});
-			
 	  };
-			
 	
 	// ==== 댓글내용 페이지바 Ajax로 만들기 ==== //
 	function makeCommentPageBar(currentShowPageNo) {
@@ -506,6 +522,7 @@
 					}
 						
 					while( !(loop > blockSize || pageNo > totalPage) ) {
+						
 						
 						if(pageNo == currentShowPageNo) {
 							pageBarHTML += "<li style='display:inline-block; width:30px; font-size:11pt; border:solid 1px gray; color:red; padding:2px 4px;'>"+pageNo+"</li>";
@@ -569,7 +586,7 @@
 	};
 	
 	function name_unbind() {
-
+		
 		$("input#name").unbind("input");
 		$("input#name").unbind("paste");
 		$("input#name").unbind("propertychange");
@@ -580,7 +597,6 @@
 		
 		var content = $("textarea#commentContent").val().trim();
 		$("strong#result").html(content.length);
-		
 		
 		if (content.length > 300) {
 			
@@ -652,12 +668,51 @@
 	}; // end of alert 함수
 	
 	
-	function removeTag(text) {
-		text = text.replace(/<br\/>/ig, "\n");
-		text = text.replace(/<(\/)?([a-zA-Z]*)(\s[a-zA-Z]*=[^>]*)?(\s)*(\/)?>/ig, "");
+	function pw_bind() {
 		
-		return text;
-	}
+		$('input#pw').bind({
+			paste : pw_analysis,
+			input : pw_analysis,
+			propertychange : pw_analysis
+		});
+		return;
+	};
+	
+	function pw_analysis() {
+		
+		var pwVal = $("input#pw").val();
+			
+			// 공백
+			if(pwVal == "") {
+				$("span#pwResult").html("암호를 입력하세요").css("color", "red");
+				return;
+			}
+			
+			// 비밀번호 15자 초과
+			if(pwVal.length > 15) {
+				
+				$("input#pw").val(pwVal.substring(0, 15) );
+				$("span#pwResult").html("암호는 최대 15자까지 사용 가능합니다.").css("color", "red");
+				return;
+			}
+		
+			var regExp = new RegExp(/^.*(?=^.{8,15}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[^a-zA-Z0-9]).*$/g);
+			var bool = regExp.test(pwVal);
+			
+			if(!bool) {
+				
+				// 암호가 정규표현식에 위배된 경우
+				$("span#pwResult").html("암호는 영문자,숫자,특수기호가 혼합된 8~15 글자로 입력하세요.").css("color", "red");
+			   	$("input#pw").focus();					   	
+			    return;
+			}
+			
+			$("span#pwResult").html("사용가능한 비밀번호 입니다.").css("color", "green");
+			return;			
+		
+	};
+	
+
 	
 
 //]]>	
@@ -672,21 +727,22 @@
 	
 	
     <c:if test="${not empty boardvo}"> 
-		<table id="table">
+		<table summary="게시글의 제목과 내용 파일첨부을 나타낸 표 " id="table">
+		<caption>게시글 내용 보기</caption>
 			<%-- <tr>
 				<th>글번호</th>
 				<td>${boardvo.seq}</td>
 			</tr> --%>
 			<tr>
-				<th>작성자</th>
+				<th scope="row">작성자</th>
 				<td><c:out value="${boardvo.name}"></c:out> </td>
 			</tr>
 			<tr>
-				<th>제목</th>
+				<th scope="row">제목</th>
 				<td><c:out value="${boardvo.subject}"></c:out></td>
 			</tr>
 			<tr>
-				<th>내용</th>
+				<th scope="row">내용</th>
 				<td>
 				 <pre><c:out value="${boardvo.content}"></c:out></pre>
 				 <%-- 
@@ -698,30 +754,37 @@
 				</td>
 			</tr>
 			<tr>
-				<th>조회수</th>
+				<th scope="row"> 조회수</th>
 				<td>${boardvo.readCount}</td>
 			</tr>
 			<tr>
-				<th>작성일</th>
+				<th scope="row">작성일</th>
 				<td>${boardvo.regDate}</td>
 			</tr>
 			
 			<%-- === #162. 첨부파일 이름 및 파일크기를 보여주고 첨부파일을 다운로드 되도록 만들기 === --%>
 			<tr>
-				<th>첨부파일</th>
+				<th scope="row">첨부파일</th>
 				<td>
 					<c:if test="${sessionScope.loginuser == null}">
-						<a href="<%= request.getContextPath()%>/download.action?seq=${boardvo.seq}">${boardvo.orgFilename}</a> 
+						
+						<ul style="filename">
+							<c:forEach var="orgFileName" items="${orgFilenameList}" varStatus="i">
+							<li><a title="${orgFileName} 파일다운로드" href="<%= request.getContextPath()%>/download.action?seq=${boardvo.seq}&index=${i.index}">${orgFileName}</a> </li>
+							</c:forEach>
+						</ul>
+						
+						<%-- <a href="<%= request.getContextPath()%>/download.action?seq=${boardvo.seq}">${boardvo.orgFilename}</a> --%> 
 					</c:if>
 					
 					<c:if test="${sessionScope.loginuser != null}">
-						${boardvo.orgFilename}
+						<ul style="filename">
+							<c:forEach var="orgFileName" items="${orgFilenameList}" varStatus="i">
+							<li> <a title="${orgFileName} 파일다운로드"  href="<%= request.getContextPath()%>/download.action?seq=${boardvo.seq}&index=${i.index}">${orgFileName}/</a> </li>
+							</c:forEach>
+						</ul>
 					</c:if>
 				</td>
-			</tr>
-			<tr>
-				<th>파일크기(bytes)</th>
-				<td><fmt:formatNumber value="${boardvo.fileSize}" pattern="#,###" /></td>
 			</tr>
 			
 		</table>
@@ -731,10 +794,10 @@
 		<c:set var="gobackURL2" value='${ fn:replace(gobackURL, "&" ," ") }' />
 		<c:if test="${searchWord == null}">
 			<c:if test="${boardvo.previoussubject != null}">
-			 	<div style="margin-bottom: 1%;">이전글&nbsp;:&nbsp;<span class="move" onclick="javascript:location.href='view.action?seq=${boardvo.previousseq}&gobackURL=${gobackURL2}'"><c:out value="${boardvo.previoussubject}"></c:out></span></div>
+			 	<div style="margin-bottom: 1%;">이전글&nbsp;:&nbsp;<span title="${boardvo.previoussubject} 제목의 이전글로 이동하기" class="move" onclick="javascript:location.href='view.action?seq=${boardvo.previousseq}&gobackURL=${gobackURL2}'"><c:out value="${boardvo.previoussubject}"></c:out></span></div>
 			</c:if>
 			<c:if test="${boardvo.nextseq != null}">
-			 	<div style="margin-bottom: 1%;">다음글&nbsp;:&nbsp;<span class="move" onclick="javascript:location.href='view.action?seq=${boardvo.nextseq}&gobackURL=${gobackURL2}'"><c:out value="${boardvo.nextsubject}"></c:out></span></div>
+			 	<div style="margin-bottom: 1%;">다음글&nbsp;:&nbsp;<span title="${boardvo.nextsubject} 제목의 다음글로 이동하기" class="move" onclick="javascript:location.href='view.action?seq=${boardvo.nextseq}&gobackURL=${gobackURL2}'"><c:out value="${boardvo.nextsubject}"></c:out></span></div>
 			</c:if>
 			
 		<%-- <div style="margin-bottom: 1%;">이전글&nbsp;:&nbsp;<span class="move" onclick="javascript:location.href='view.action?seq=${boardvo.previousseq}&gobackURL=${gobackURL2}'"><c:out value="${boardvo.previoussubject}"></c:out></span></div> 
@@ -762,20 +825,20 @@
 	
 		                        
 	<c:if test="${empty boardvo}">
-		<button type="button" onclick="javascript:location.href='<%= request.getContextPath()%>/list.action'">목록으로</button>
+		<button title="게시판 목록으로 돌아가기" type="button" onclick="javascript:location.href='<%= request.getContextPath()%>/list.action'">목록으로</button>
 	</c:if>
 	
 	<c:if test="${not empty boardvo}">
-		<button type="button" onclick="javascript:location.href='<%= request.getContextPath()%>/edit.action?seq=${boardvo.seq}&gobackURL=${gobackURL}'">수정</button>
-		<button type="button" onclick="javascript:location.href='<%= request.getContextPath()%>/${gobackURL}'">목록으로</button>
-		<button type="button" onclick="javascript:location.href='<%= request.getContextPath()%>/del.action?seq=${boardvo.seq}'">삭제</button>
-		<button type="button" onclick="javascript:location.href='<%= request.getContextPath()%>/add.action?fk_seq=${boardvo.seq}&groupno=${boardvo.groupno}&depthno=${boardvo.depthno}'">답변글쓰기</button>
+		<button title="게시글 수정하기" type="button" onclick="javascript:location.href='<%= request.getContextPath()%>/edit.action?seq=${boardvo.seq}&gobackURL=${gobackURL}'">수정</button>
+		<button title="게시판 목록으로 돌아가기" type="button" onclick="javascript:location.href='<%= request.getContextPath()%>/${gobackURL}'">목록으로</button>
+		<button title="게시글 삭제하기" type="button" onclick="javascript:location.href='<%= request.getContextPath()%>/del.action?seq=${boardvo.seq}'">삭제</button>
+		<button title="답변글쓰기 " type="button" onclick="javascript:location.href='<%= request.getContextPath()%>/add.action?fk_seq=${boardvo.seq}&groupno=${boardvo.groupno}&depthno=${boardvo.depthno}'">답변글쓰기</button>
 	</c:if>		                        		
 	</div>
 	 
     <%-- === #141. 어떤글에 대한 답변글쓰기는 로그인 되어진 회원의 gradelevel 컬럼의 값이 10 인 직원들만 답변글쓰기가 가능하다 --%>
     <c:if test="${sessionScope.loginuser.gradelevel == 10}">
-    	<button type="button" onclick="javascript:location.href='<%= request.getContextPath()%>/add.action?fk_seq=${boardvo.seq}&groupno=${boardvo.groupno}&depthno=${boardvo.depthno}'">답변글쓰기</button>
+    	<button title="답변글쓰기 " type="button" onclick="javascript:location.href='<%= request.getContextPath()%>/add.action?fk_seq=${boardvo.seq}&groupno=${boardvo.groupno}&depthno=${boardvo.depthno}'">답변글쓰기</button>
 	</c:if>
 	
  	
@@ -799,30 +862,40 @@
 			</div>
 			
 			<div id="three"> --%>
+			
 <div id ="writeBorder">	
-	<form name="addWriteFrm">
+	<form title="댓글쓰기 및 댓글 목록" name="addWriteFrm" style="border-color: black 1px;">
 		   <h3 style="margin-top: 50px;">댓글쓰기 및 보기</h3>
           <div style="margin-right: 5%;">
-             <strong>작성자 : </strong>
-              <input type="text" id="name" name="name">
+          	<div class="sub_div">
+          	  <span  class="sub_name"> <label for="name">작성자</label> </span> 
+               :&nbsp;<input title="작성자 입력" type="text" id="name" name="name">
               <input type="hidden" name="fk_userid" value="leess" />
-              <input type="hidden" name="parentSeq" value="${boardvo.seq}" /> 
-              <div style="display: inline-block; float: right; ">
-            	<strong>암호 : </strong>
-  				<input type="password" id="pw" name="comment_pw">	  
-              </div>
-            
+              <input type="hidden" name="parentSeq" value="${boardvo.seq}" />
+          	</div>
+             
+             <div class="sub_div">
+               <span  class="sub_name"> <label for="pw">암  호</label></span>	 
+  			   :  <input title="댓글 암호 입력" type="password" id="pw" name="comment_pw">
+  			   <span id="pwResult"></span>
+             </div>
+             
+             <div class="sub_div">
+             	
+             </div>
+             
           </div>
-
-            <strong>댓글내용</strong>
+		 
+            
             <div>
-              <textarea id="commentContent" name="content" rows="3" cols="30"></textarea>    
+            <strong><label for="commentContent">댓글내용</label></strong>
+              <textarea title="댓글 내용을 입력하세요" id="commentContent" name="content" rows="3" cols="30"></textarea>    
             </div>
 
             
             <div id="displaybtn">
-            <strong id="result"> 0 </strong> / <span> 300</span>
-               <button type="button" id="btnComment" type="button" onclick="goAddWrite()">
+            <strong title="입력 가능한 글자수" id="result"> 0 </strong> / <span> 300</span>
+               <button title="댓글 등록하기" type="button" id="btnComment" type="button" onclick="goAddWrite()">
                   <span>등록</span>
                </button>
             </div>
@@ -847,8 +920,6 @@
 	
 	  <div id="container">
         <hr>
-        
-
       </div>
       
 	<!-- ==== #136. 댓글 페이지바 ==== -->
@@ -866,10 +937,10 @@
             </button> 
           </div>
           
-          <div class="modal-body">댓글암호 : <input type="password"><input type="hidden" value=""></div>
+          <div class="modal-body">댓글암호 : <input title="댓글를 입력하세요" type="password"><input type="hidden" value=""></div>
           <div class="modal-footer">
-            <button type="button" id="btnDelete" onclick="delComment();" class="btn btn-primary">삭제하기</button>
-            <button type="button" onclick="javascript:history.back()" class="btn btn-secondary" data-dismiss="modal">취소하기</button>
+            <button title="댓글 삭제하기" type="button" id="btnDelete" onclick="delComment();" class="btn btn-primary">삭제하기</button>
+            <button title="댓글 삭제 취소하기" type="button" onclick="javascript:history.back()" class="btn btn-secondary" data-dismiss="modal">취소하기</button>
           </div>
         </div>
       </div>

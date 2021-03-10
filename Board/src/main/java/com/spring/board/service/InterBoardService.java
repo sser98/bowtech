@@ -48,7 +48,7 @@ public interface InterBoardService {
 
 	// 댓글쓰기 (transaction 처리)
 	int addComment(CommentVO commentvo) throws Throwable;
-
+	
 	// 원게시글에 딸린 댓글들을 조회해오는 것
 	List<CommentVO> getCommentList(String parentSeq);
 
@@ -95,6 +95,9 @@ public interface InterBoardService {
 	
 	// 원게시물에 딸린 댓글 수정
 	int editComment(Map<String, String> paraMap);
+	
+	// 엑셀 파일에서 검색조건만 이용하여 엑셀 출력하기
+	List<BoardVO> boardListSearchNoPaging(Map<String, String> paraMap);
 	
 
 

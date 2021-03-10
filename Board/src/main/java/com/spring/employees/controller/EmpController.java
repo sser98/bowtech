@@ -44,6 +44,8 @@ public class EmpController {
 		List<String> deptIdList = service.deptIdList();
 		
 		String sDeptIdes = request.getParameter("sDeptIdes");
+		
+		
 		/*
 		    sDeptIdes ==> null  검색버튼을 클릭안하고 처음으로 보여줄때
 		    sDeptIdes ==> "-9999,50,110"
@@ -52,6 +54,7 @@ public class EmpController {
 		*/
 		
 		String gender = request.getParameter("gender");
+		
 		/*
 		     gender ==> null  검색버튼을 클릭안하고 처음으로 보여줄때
 		     gender ==> ""  
@@ -91,6 +94,7 @@ public class EmpController {
 	public String downloadExcelFile(HttpServletRequest request, Model model) {
 		
 		String sDeptIdes = request.getParameter("sDeptIdes");
+		
 		/*
 		    sDeptIdes ==> null  검색버튼을 클릭안하고 처음으로 보여줄때
 		    sDeptIdes ==> "-9999,50,110"
@@ -99,15 +103,18 @@ public class EmpController {
 		*/
 		
 		String gender = request.getParameter("gender");
+		
 		/*
 		     gender ==> null  검색버튼을 클릭안하고 처음으로 보여줄때
 		     gender ==> ""  
 		     gender ==> "남"
 		     gender ==> "여"  
-		 */
+		*/
+		
 		
 		Map<String,Object> paraMap = new HashMap<>();
 				
+		
 		if( sDeptIdes != null && !"".equals(sDeptIdes) ) {
 			String[] deptIdArr = sDeptIdes.split(",");
 			paraMap.put("deptIdArr", deptIdArr);
@@ -117,7 +124,9 @@ public class EmpController {
 			paraMap.put("gender", gender);
 		}
 		
+		
 		List<Map<String,String>> empList = service.empList(paraMap);
+		
 		
 		// === 조회결과물인 empList 를 가지고 엑셀 시트 생성하기 ===
 		// 시트를 생성하고, 행을 생성하고, 셀을 생성하고, 셀안에 내용을 넣어주면 된다.
@@ -137,19 +146,19 @@ public class EmpController {
 		sheet.setColumnWidth(6, 1500);
 		sheet.setColumnWidth(7, 1500);
 		
+		
 		// 행의 위치를 나타내는 변수 
 		int rowLocation = 0;
-	
-		
 		
 		////////////////////////////////////////////////////////////////////////////////////////
 		// CellStyle 정렬하기(Alignment)
 		// CellStyle 객체를 생성하여 Alignment 세팅하는 메소드를 호출해서 인자값을 넣어준다.
 		// 아래는 HorizontalAlignment(가로)와 VerticalAlignment(세로)를 모두 가운데 정렬 시켰다.
+		
 		CellStyle mergeRowStyle = workbook.createCellStyle();
 		mergeRowStyle.setAlignment(HorizontalAlignment.CENTER);
 		mergeRowStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-		                                // import org.apache.poi.ss.usermodel.VerticalAlignment 으로 해야함.
+		// import org.apache.poi.ss.usermodel.VerticalAlignment 으로 해야함.
 		
 		CellStyle headerStyle = workbook.createCellStyle();
 		headerStyle.setAlignment(HorizontalAlignment.CENTER);
@@ -193,6 +202,7 @@ public class EmpController {
         /* 셀병합은 시트의 addMergeRegion 메소드에 CellRangeAddress 객체를 인자로 하여 병합시킨다.
            CellRangeAddress 생성자의 인자로(시작 행, 끝 행, 시작 열, 끝 열) 순서대로 넣어서 병합시킬 범위를 정한다. 배열처럼 시작은 0부터이다.  
         */
+        
         // 병합할 행 만들기
         Row mergeRow = sheet.createRow(rowLocation);  // 엑셀에서 행의 시작은 0 부터 시작한다.
         

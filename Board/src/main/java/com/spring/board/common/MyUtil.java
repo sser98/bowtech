@@ -41,14 +41,24 @@ public class MyUtil {
 	public static String removeTag(String html) throws Exception {
 		
 		
-		html=html.replaceAll("<(/)?([a-zA-Z]*)(\\\\s[a-zA-Z]*=[^>]*)?(\\\\s)*(/)?>", html);
-		
-		
-		html=html.replaceAll("<", "&lt;"); 
-		html=html.replaceAll(">", "&gt;");
-		html=html.replaceAll("\r\n", "<br>");
-		
-		return html; 
+	      return html.replaceAll("[&]", "&amp;")
+
+	              .replaceAll("[<]", "&lt;")
+
+	              .replaceAll("[>]", "&gt;");
+
+/*	              .replaceAll("[\\\"]", "&quot;")
+
+	              .replaceAll("[\\]", "&#39;");*/
+
+	     
+			/*
+			 * html=html.replaceAll("&", "&amp;"); html=html.replaceAll("<", "&lt;");
+			 * html=html.replaceAll(">", "&gt;"); html=html.replaceAll("[\"]", "&quot;");
+			 * html=html.replaceAll("[\\]","&#39;");
+			 * 
+			 * return html;
+			 */
 		
 	}
 	
@@ -68,7 +78,13 @@ public class MyUtil {
 		
 	}
 	
-	
+	public static String restorePlus(String html) throws Exception {
+		
+		html=html.replaceAll(","," ");
+		
+		return html; 
+		
+	}
 	
 	
 }

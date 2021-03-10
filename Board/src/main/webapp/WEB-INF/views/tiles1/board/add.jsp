@@ -61,10 +61,14 @@
 		margin-bottom: 20px;
 		font-size: 10pt;
 	}
-
 	
-
 	
+	ul {
+	  	padding-inline-start: 20px;
+	  	margin-bottom: 0px;
+	  	border: 1px; 
+	  }
+		
 </style>
 	
 <script type="text/javascript">
@@ -73,17 +77,19 @@
 	var a = 0; // 조건 변수
 	// var content ="";
 	
+	
+	
    $(document).ready(function(){
 	   
 	
-	   // on이랑 bind사용방법 똑같음
-       /*$("textarea#content").on({
-		   propertychange : textarea_analysis,
-		   change : textarea_analysis,
-		   keyup : textarea_analysis,
-		   paste : textarea_analysis,
-	   }); */
+
 	   
+	   $("button#addfile").on('click', function () {
+			
+		   alert("야호");
+		   $("div#fileContainer").append("<input type='file' name='file'>")
+		   
+		});
 	   
   		$('textarea#content').bind({
 			input : textarea_analysis,
@@ -91,13 +97,11 @@
 			propertychange : textarea_analysis
 		}); 
 		
-		
 		$('input#subject').bind({
 			input : subject_analysis,
 			paste : subject_analysis,
 			propertychange : subject_analysis
 		});
-		
 		
 		$('input#name').bind({
 			input : name_analysis,
@@ -105,15 +109,16 @@
 			propertychange : name_analysis
 		}); 
 			    
+ 		$('input#file').bind({
+			input : file_analysis
+		}); 
 		
+ 		
 		   // 쓰기버튼
 		   $("button#btnWrite").click(function(){
 				
-			   
 			   var nameVal = $("input#name").val(); 
-			   
 			   if(nameVal == "") {
-				   
 				   alert("작성자명을 입력하세요");
 				   $("input#name").focus();
 				   return;
@@ -239,7 +244,7 @@
 		$("input#subject").val(subject.substring(0, 75));
 		
 		$('input#subject').bind({
-			//change : subject_analysis,
+			
 			paste : subject_analysis,
 			input : subject_analysis,
 			propertychange : subject_analysis
@@ -256,9 +261,9 @@
 	
 	
 	function name_analysis(event) {
-	
+		
 		name = $("input#name").val().trim();
-
+		
 		if (name.length > 5) {
 
 			name = $(this).val().trim();
@@ -337,66 +342,158 @@
 		return;
 
 	}; // end of alert 함수
+	
+	function file_analysis() {
+		
+        var fileInput = document.getElementById("file");
+        var files = fileInput.files;
+        var file;
+         
+        var html="";
+        
+        if(files.length > 5) {
+        	alert("파일 갯수는 최대 5개까지 첨부 가능합니다.");
+        	$("input#file").val("");
+        	$("ul#fileList").html("");
+            $("strong#totalSize").html("( 0MB / 20MB )");
+        	return false;
+        }
+        
+        
+        var totalFileSize = 0;
+        
+        for (var i = 0; i < files.length; i++) {
+             
+            file = files[i];
+            
+            console.log(file);
+            var maxSize = 20 * 1024 * 1024; // 20MB
+            
+            
+            totalFileSize+=file.size;
+			            
+            // 크기 체크 
+             if(totalFileSize > maxSize) {
+            	alert("최대 20MB까지 사용이 가능합니다.");
+            	$("input#file").val("");
+            	$("ul#fileList").html("");
+                $("strong#totalSize").html("( 0MB / 20MB )");
+            	return false;
+            }
+            
+            
+            // 파일 확장자 체크 
+            var IMG_FORMAT = "\\.(bmp|gif|jpg|jpeg|png)$";
+
+             if( (new RegExp(IMG_FORMAT, "i")).test(file.name) ) {
+            	html+="<li>"+file.name+" ("+file.size+" Byte) </li>";
+            	}
+            	
+             
+            else {
+            	alert("bmp, gif, jpg, jpeg, png 파일만 첨부하실 수 있습니다.");
+            	$("input#file").val("");
+            	$("ul#fileList").html("");
+                $("strong#totalSize").html("( 0MB / 20MB )");
+            	return false;
+            }
+             
+        }
+        
+        var totalSize = (totalFileSize/(1024*1024)).toFixed(2);
+        
+        $("ul#fileList").html(html);
+        
+        $("strong#totalSize").html("( "+totalSize+"MB / 20MB )");
+        
+        
+	};
+	
+	
+	function delFile() {
+		
+       	$("input#file").val("");
+    	$("ul#fileList").html("");
+        $("strong#totalSize").html("( 0MB / 20MB )");
+	}; 
+	
+	
 </script>
 
 <div style="padding-left: 5%;">
  <h1>글쓰기</h1>
-
+  
+  
  <form name="addFrm" enctype="multipart/form-data"> 
-      <table id="table">
+      <table summary="글을 작성할 수 있도록 만든 표" id="table">
+      <caption>글쓰기 표</caption>
          <tr>
-            <th>작성자</th>
-            <td>
+            <th scope="row"> <label for="name">작성자  </label> </th>
+	            <td>
                 <input type="hidden" name="fk_userid" value="leess" />
-                <input type="text" name="name" id="name" value="" class="name" maxlength='10'/>       
+                <input type="text" name="name" id="name" value="" class="name" title="작성자의 이름을 입력하세요"  maxlength='10'/>       
             </td>
          </tr>
          <tr>
-            <th>제목</th>
+            <th scope="row"><label for="subject">제목 </label></th>
             <td>
-               <input type="text" name="subject" id="subject" class="long" maxlength='210'/>       
+               <input type="text" name="subject" id="subject" class="long" maxlength='210'  title="글 제목 입력하세요" />       
             </td>
          </tr>
          <tr>
-            <th>내용</th>
+            <th scope="row"><label for="content">내용 </label></th>
             <td>
-               <textarea rows="10" cols="100" style="height: 612px;" name="content" id="content"></textarea>
+               <textarea rows="10" cols="100" style="height: 612px;" name="content" id="content" title="글 내용을 입력하세요" ></textarea>
                 <span id="result"></span>
             </td>
          </tr>
          <tr>
-         
-            <th>글자 수</th>
+            <th scope="row">글자 수</th>
             <td id="result">
-               
-            </td>
+           </td>
          </tr>
-
-         
+		
+         <!-- <input multiple="multiple" type="file" name="attach" id="file"/> -->
+		          
+         <!-- <div id="fileContainer">
+		          
+         <input type="file" name="attach"> 
+          	</div>
+          	
+         <button type="button" id="addfile">파일추가</button> -->
          <%-- === #150. 파일첨부 타입 추가하기 === --%>
          <tr>
-            <th>파일첨부</th>
+            <th scope="row"> <label for="file">파일첨부</label></th>
             <td>
-               <input type="file" name="attach" />       
+	            <input multiple="multiple" type="file" name="attach" id="file" title="파일 선택하기" /> <button type="button" title="파일 삭제하기" style="display: inline;" onclick="delFile();">파일 삭제</button>
+	            <div >
+	            	<ul id="fileList" style="filename"></ul>
+	            </div> 
             </td>
          </tr>
          
          <tr>
-            <th>글암호</th>
+         	<th scope="row"><label for="totalSize">파일크기</label></th>
+         	<td>
+				<strong id="totalSize"></strong>			
+         	</td>
+         </tr>
+			
+         <tr>
+            <th scope="row"><label for="pw">글암호</label></th>
             <td>
-               <input type="password" name="pw" id="pw" class="short"/> 
+               <input type="password" name="pw" id="pw" title="글 암호 입력"  class="short"/> 
                <span id="error" class="error">암호는 영문자,숫자,특수기호가 혼합된 8~15 글자로 입력하세요.</span>      
-               
             </td>
             
          </tr>
       </table>
-      
-      
+	  
+	         
       <%-- === #143. 답변글쓰기가 추가된 경우 === --%>
-      <input type="hidden" name="fk_seq"  value="${requestScope.fk_seq}" />
-      <input type="hidden" name="groupno" value="${requestScope.groupno}" />
-      <input type="hidden" name="depthno" value="${requestScope.depthno}" />
+      <input type="hidden" name="fk_seq"  value="${requestScope.fk_seq}"/>
+      <input type="hidden" name="groupno" value="${requestScope.groupno}"/>
+      <input type="hidden" name="depthno" value="${requestScope.depthno}"/>
       <div id="btn">
 	      <div>
 	     	<button type="button" id="btnWrite">쓰기</button>

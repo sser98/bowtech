@@ -16,6 +16,7 @@ import org.springframework.web.servlet.view.AbstractView;
   AbstractView 를 이용하여 파일다운로드를 구현한다.
    즉, AbstractView 를 상속받아 파일다운로드를 처리해주는 뷰로 사용될 클래스를 만들어 준다. 
 */
+
 public class ExcelDownloadView extends AbstractView {
 	
 	@Override
@@ -31,6 +32,8 @@ public class ExcelDownloadView extends AbstractView {
 		String workbookName = (String) model.get("workbookName"); // 넘겨받은 모델(다운로드되어질 엑셀파일의 정보)
 		
 		// 엑셀파일로 다운로드시 다운로드 되어지는 파일 이름의 중복을 피하기 위해 현재시간을 이용해서 파일 이름에 추가하도록 한다.
+		
+		
         java.util.Date now = new java.util.Date();
         SimpleDateFormat dayformat = new SimpleDateFormat("yyyyMMdd", locale);
         SimpleDateFormat hourformat = new SimpleDateFormat("hhmmss", locale);
@@ -65,6 +68,7 @@ public class ExcelDownloadView extends AbstractView {
              fileName = "\"" + new String(fileName.getBytes("UTF-8"), "8859_1")+ "\"";
         }
         
+        
         response.setContentType("application/download;charset=utf-8");
         // 임의의 파일 다운로드 형식은 utf-8 문자코드로 사용한다.
         // 참고로 브라우저한테 '우리는 utf-8 문자코드로 사용할거야. utf-8로 사용해줘'라는 메세지를 전달해야 하는데 
@@ -83,7 +87,7 @@ public class ExcelDownloadView extends AbstractView {
         // 엑셀 Workbook의 종류로는 엑셀 97~2003버전인 HSSFWorkbook, 
         // 엑셀 2007이상의 XSSFWorkbook, 
         // 가장 최근에 나온 성능개선버전인 SXSSFWorkbook 이 있다.
-       
+        
         try {
             workbook = (SXSSFWorkbook) model.get("workbook");
             ost = response.getOutputStream();
@@ -95,6 +99,7 @@ public class ExcelDownloadView extends AbstractView {
             // 문자(character data)를 출력하기 위한 PrintWriter 를 사용한다.
             
             workbook.write(ost); // 엑셀파일생성
+            
        } catch (Exception e) {
            e.printStackTrace();
        } finally {

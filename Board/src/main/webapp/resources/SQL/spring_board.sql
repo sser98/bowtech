@@ -442,9 +442,9 @@ create table tbl_board
                                                  -- 원글(부모글)의 depthno + 1 을 가지게 되며,
                                                  -- 답변글이 아닌 원글일 경우 0 을 가지도록 한다.
 
-,fileName       varchar2(255)                    -- WAS(톰캣)에 저장될 파일명(2020120809271535243254235235234.png)                                       
-,orgFilename    varchar2(255)                    -- 진짜 파일명(강아지.png)  // 사용자가 파일을 업로드 하거나 파일을 다운로드 할때 사용되어지는 파일명 
-,fileSize       number                           -- 파일크기  
+,fileName       CLOB  default 0                  -- WAS(톰캣)에 저장될 파일명(2020120809271535243254235235234.png)                                       
+,orgFilename    CLOB  default 0                  -- 진짜 파일명(강아지.png)  // 사용자가 파일을 업로드 하거나 파일을 다운로드 할때 사용되어지는 파일명 
+,fileSize       CLOB  default 0                         -- 파일크기  
 
 ,constraint PK_tbl_board_seq primary key(seq)
 ,constraint FK_tbl_board_fk_userid foreign key(fk_userid) references tbl_member(userid)
@@ -460,6 +460,12 @@ nocycle
 nocache;
 
 select* from tbl_board;
+
+drop table tbl_board;
+drop table tbl_comment;
+
+
+
 
 create table tbl_comment
 (seq           number               not null   -- 댓글번호
@@ -837,7 +843,7 @@ select seq, fk_userid, name, subject, readCount, regDate, commentCount
 		    ) V 
 		) T 
 		where rno between 1 and 10; 
-
+        
 
 select seq, fk_userid, name, subject, readCount, regDate, commentCount  
      , groupno, fk_seq, depthno
@@ -863,3 +869,17 @@ from
     ) V 
 ) T 
 where rno between 1 and 10;
+
+select * from tbl_board;
+
+delete tbl_board;
+commit;
+
+
+	 	update tbl_board set 
+	 			  subject = 'gg'
+    	        , content = 'gg'
+	 	    	, fileName = '20210305072125663489782918400.png'
+    			, orgFilename = 'blog.png'
+    			, fileSize = '2968'
+    	where seq = 532 and pw = 'chlwlgns1@3';	

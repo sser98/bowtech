@@ -139,9 +139,8 @@ public class BoardDAO implements InterBoardDAO {
 	public BoardVO getView(String seq) {
 		BoardVO boardvo = sqlsession.selectOne("board.getView", seq);
 		return boardvo;
-		
 	}
-
+	
 
 	// == #74. 1개글 수정하기 == 
 	@Override
@@ -308,6 +307,21 @@ public class BoardDAO implements InterBoardDAO {
 	@Override
 	public int updateState(Map<String, String> paraMap) {
 		int n=sqlsession.update("board.updateState", paraMap);
+		return n;
+	}
+
+
+	@Override
+	public List<BoardVO> boardListSearchNoPaging(Map<String, String> paraMap) {
+		List<BoardVO> boardList = sqlsession.selectList("board.boardListSearchNoPaging", paraMap);
+		return boardList;
+	}
+
+
+	@Override
+	public int editwithFile(BoardVO boardvo) {
+		
+		int n = sqlsession.update("board.editwithFile", boardvo);
 		return n;
 	}
 

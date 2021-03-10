@@ -99,6 +99,12 @@ public interface InterBoardDAO {
 	
 	// 글 상태 변경하기
 	int updateState(Map<String, String> paraMap);
+	
+	// 엑셀 다운로드시 페이징 처리가 안된 List 가져오기
+	List<BoardVO> boardListSearchNoPaging(Map<String, String> paraMap);
+	
+	// 첨부 파일이 있는 수정하기
+	int editwithFile(BoardVO boardvo);
 
 	
 	

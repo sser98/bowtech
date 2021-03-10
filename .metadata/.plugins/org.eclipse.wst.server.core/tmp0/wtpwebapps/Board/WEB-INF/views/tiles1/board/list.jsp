@@ -38,11 +38,17 @@
                    
                    
     #searchWord {
-    	width: 80%;
+    	width: 78%;
+    	
     } 
     
     tr {
-    	height: 50pt;
+    	height: 30pt;
+    }
+    
+    div#mycontent {
+	    min-height: 600px;
+	    padding-top: 20px;
     }
            
 </style>
@@ -141,6 +147,36 @@
       }
       
       
+      
+      
+	   ///// === Excel 파일로 다운받기 시작 === /////
+	   $("button#btnAllExcel").click(function(){
+		   
+		   
+		   alert("AllExcel을 클릭 하였습니다.");
+		   var frm = document.searchFrm;
+		   frm.method = "POST";
+		   frm.action = "<%= request.getContextPath()%>/downloadExcelFile.action"; 
+		   frm.submit();		   
+	   });
+	   
+	   ///// === Excel 파일로 다운받기 끝 === /////
+	   
+	   ///// === Excel 파일로 다운받기 시작 === /////
+	   $("button#btnPageExcel").click(function(){
+		   
+		   $("input#downLoadType").val("Y");
+		   alert("PageExcel을 클릭 하였습니다.");
+		   var frm = document.searchFrm;
+		   frm.method = "POST";
+		   frm.action = "<%= request.getContextPath()%>/downloadExcelFile.action"; 
+		   frm.submit();
+		   
+		   $("input#downLoadType").val("");
+	   });
+	   
+	   ///// === Excel 파일로 다운받기 끝 === /////
+      
    });// end of $(document).ready(function(){})-------------------
          
    
@@ -185,122 +221,147 @@
    }
    
    
+   
+   
+   
+   
+   
+   
 </script>
 
 	   
 <div style="padding-left: 3%;">
-   <h2 style="margin-top: 30px;">자유게시판</h2>
-   
-   
-   <table id="table">
-   
+   <h2 style="margin-top: 20px;">자유게시판</h2>
+   	<button id="btnAllExcel" title="엑셀 화면 출력" style="float: right; margin-right: 17.4pt;">엑셀 전체 출력</button>
+   	<button id="btnPageExcel" title="엑셀 전체 출력" style="float: right; margin-right: 17.4pt;">엑셀 화면 출력</button>
+   <table summary="최신글 순서대로 나열되어 있는 글 제목과 작성자가 표시된 게시판 표"  id="table">
+   	<caption>게시판 목록</caption>
+   	
+   	
       <tr>
-         <th class="number" style="width: 50px;  text-align: center;">글번호</th>
-         <th class="title"  style="width: 400px; text-align: center;">제목</th>
-         <th class="author" style="width: 70px;  text-align: center;">작성자</th>
-         <th class="registerdate" style="width: 100px; text-align: center;">작성일</th>
-         <th class="viewcount" style="width: 50px;  text-align: center;">조회수</th>
+      
+         <th scope="rowgroup" class="number" style="width: 50px;  text-align: center;">글번호</th>
+         <th scope="rowgroup" class="title"  style="width: 400px; text-align: center;">제목</th>
+         <th scope="rowgroup" class="author" style="width: 70px;  text-align: center;">작성자</th>
+         <th scope="rowgroup" class="registerdate" style="width: 100px; text-align: center;">작성일</th>
+         <th scope="rowgroup" class="viewcount" style="width: 50px;  text-align: center;">조회수</th>
       </tr>   
       
       
-      <c:set var="num" value="${number}"/>
-      <c:forEach var="boardvo" items="${boardList}" varStatus="status">
-      <c:set var="subjectVal" value="${boardvo.subject}"/>
-      <c:set var="date" value="${boardvo.regDate}"/>
-      <c:set var="status" value="${boardvo.status}"/>  
-
-            
-      	<c:choose>
-      	<c:when test="${boardvo.status == 0}">
-      		<tr>
-            <td align="center"></td>
-        	<td align="left">----작성자에 의해 삭제된 글입니다.</td>   	
-            <td align="center"><c:out value="${boardvo.name}"></c:out></td>
-            <td align="center">${fn:substring(date,0,10)}</td>
-            <td align="center">${boardvo.readCount}</td>
-         </tr>
-      </c:when>
       
-      <c:otherwise>
-      
-         	<tr>
-            <td align="center">${num}</td>
-            <td align="left">
-            
-            <c:set var="i" value="${i + 1}"/>  
-          <%-- === 댓글쓰기 및 답변형 및 파일첨부가 있는 게시판 시작 === --%>
-          <%-- 첨부파일이 없는 경우 --%>          
-          <c:if test="${empty boardvo.fileName}">
-          
-               <%-- 답변글이 아닌 원글인 경우 --%>
-               <c:if test="${boardvo.depthno == 0}">
-                  <c:if test="${boardvo.commentCount > 0}">
-						<span class="subject" onclick="goView('${boardvo.seq}')"><c:out value="${subjectVal}"></c:out><span style="vertical-align: super;">[<span style="color: red; font-size: 9pt; font-style: italic; font-weight: bold;">${boardvo.commentCount}</span>]</span> </span>
-                  </c:if>
-                  
-                  <c:if test="${boardvo.commentCount == 0}">
-                  	<c:choose>
-                  	<c:when test="${fn:length(subjectVal) > 60}">
-                  		<span class="subject" onclick="goView('${boardvo.seq}')"><c:out value=" ${fn:substring(subjectVal,0,60)}..."></c:out> </span>
-                  	</c:when>
-                  	
-                  	<c:otherwise>
-                  		<span class="subject" onclick="goView('${boardvo.seq}')"><c:out value="${boardvo.subject}"></c:out></span>
-                  	</c:otherwise>
-                  	</c:choose>	 
-                  </c:if>
-               </c:if>
-               
-               
-               <%-- 답변글인 경우 --%>
-               <c:if test="${boardvo.depthno > 0}">
-                  <c:if test="${boardvo.commentCount > 0}">
-                  <span class="subject" onclick="goView('${boardvo.seq}')"><span style="color: red; font-style: italic; padding-left: ${boardvo.depthno * 20}px;">└Re&nbsp;</span>${boardvo.subject} <span style="vertical-align: super;">[<span style="color: red; font-size: 9pt; font-style: italic; font-weight: bold;">${boardvo.commentCount}</span>]</span> </span> 
-                  </c:if>
-                  
-                  
-                  <c:if test="${boardvo.commentCount == 0}">
-                  <span class="subject" onclick="goView('${boardvo.seq}')"><span style="color: red; font-style: italic; padding-left: ${boardvo.depthno * 20}px;">└Re&nbsp;</span>${boardvo.subject}</span>  
-                  </c:if>
-               </c:if> 
-          </c:if>
-               
-              
-          <%-- 첨부파일이 있는 경우 --%>
-          <c:if test="${not empty boardvo.fileName}">
-               <%-- 답변글이 아닌 원글인 경우 --%>
-               <c:if test="${boardvo.depthno == 0}">
-               	
-                  <c:if test="${boardvo.commentCount > 0}">
-                  
-                  <span class="subject" onclick="goView('${boardvo.seq}')">${boardvo.subject} <span style="vertical-align: super;">[<span style="color: red; font-size: 9pt; font-style: italic; font-weight: bold;">${boardvo.commentCount}</span>]</span> </span> &nbsp;<img src="<%= request.getContextPath()%>/resources/images/disk.gif" /> 
-                  </c:if>
-                  <c:if test="${boardvo.commentCount == 0}">
-                  <span class="subject" onclick="goView('${boardvo.seq}')">${boardvo.subject}</span> &nbsp;<img src="<%= request.getContextPath()%>/resources/images/disk.gif" />  
-                  </c:if>
-               </c:if>
-               
-               <%-- 답변글인 경우 --%>
-               <c:if test="${boardvo.depthno > 0}">
-                  <c:if test="${boardvo.commentCount > 0}">
-                  <span class="subject" onclick="goView('${boardvo.seq}')"><span style="color: red; font-style: italic; padding-left: ${boardvo.depthno * 20}px;">└Re&nbsp;</span>${boardvo.subject} <span style="vertical-align: super;">[<span style="color: red; font-size: 9pt; font-style: italic; font-weight: bold;">${boardvo.commentCount}</span>]</span> </span> &nbsp;<img src="<%= request.getContextPath()%>/resources/images/disk.gif" />   
-                  </c:if>
-                  
-                  <c:if test="${boardvo.commentCount == 0}">
-                  <span class="subject" onclick="goView('${boardvo.seq}')"><span style="color: red; font-style: italic; padding-left: ${boardvo.depthno * 20}px;">└Re&nbsp;</span>${boardvo.subject}</span> &nbsp;<img src="<%= request.getContextPath()%>/resources/images/disk.gif" /> 
-                  </c:if>
-               </c:if> 
-          </c:if>     
-           </td>
-           
-          <%-- === 댓글쓰기 및 답변형 및 파일첨부가 있는 게시판 끝 === --%>
-            <td align="center"><c:out value="${boardvo.name}"></c:out></td>            
-            <td align="center">${fn:substring(date,0,10)}</td>
-            <td align="center">${boardvo.readCount}</td>
-            </tr>
-            <c:set var="num" value="${num-1}"></c:set>
-        </c:otherwise>
-      </c:choose>    
+      <c:forEach var="boardvo" items="${boardList}" varStatus="i">
+      	  	
+	      <c:set var="subjectVal" value="${boardvo.subject}"/>
+	      <c:set var="date" value="${boardvo.regDate}"/>
+	      <c:set var="status" value="${boardvo.status}"/>  
+	      <c:set var="m" value="${i.index}"/>
+	      <c:set var="num" value="${number-m}"/>
+	  	  
+        <%-- === 글이 삭제된 경우 === --%>
+        <c:choose>
+	        <c:when test="${boardvo.status == 0}">
+	        	<tr>
+            	<td align="center">${num}</td>  
+	          	<td align="left">
+	          	
+	               <%-- 답변글이 아닌 원글인 경우 --%>
+	               <c:if test="${boardvo.depthno == 0}">
+							<span class="subject" style="color: gray;">작성자에 의해 삭제된 글입니다.</span>
+	               </c:if>
+	               
+	               <%-- 답변글인 경우 --%>
+	               <c:if test="${boardvo.depthno > 0}">
+	                  <span class="subject" style="color: gray;"><span style=" font-style: italic; padding-left: ${boardvo.depthno * 20}px;">└Re&nbsp;</span>작성자에 의해 삭제된 글입니다.</span> 
+	               </c:if> 
+	            </td>
+	            
+	             <%-- === 댓글쓰기 및 답변형 및 파일첨부가 있는 게시판 끝 === --%>
+			     <td align="center"><c:out value="${boardvo.name}"></c:out></td>            
+			     <td align="center">${fn:substring(date,0,10)}</td>
+			     <td align="center">${boardvo.readCount}</td>
+			  </tr>
+	      	 </c:when>
+	      	 
+	      	 <c:otherwise>
+	      		<tr>
+            	<td align="center">${num}</td>  
+	          	<td align="left">
+	            
+			          <%-- === 댓글쓰기 및 답변형 및 파일첨부가 있는 게시판 시작 === --%>
+			          
+			          <%-- 첨부파일이 없는 경우 --%>          
+			          <c:if test="${boardvo.fileName eq '0'}">
+			               <%-- 답변글이 아닌 원글인 경우 --%>
+			               <c:if test="${boardvo.depthno == 0}">
+			                  <c:if test="${boardvo.commentCount > 0}">
+									<span class="subject" onclick="goView('${boardvo.seq}')"><c:out value="${subjectVal}"></c:out><span style="vertical-align: super;">[<span style="color: red; font-size: 9pt; font-style: italic; font-weight: bold;">${boardvo.commentCount}</span>]</span> </span>
+			                  </c:if>
+			                  
+			                  <c:if test="${boardvo.commentCount == 0}">
+			                  
+			                  	<c:choose>
+			                  	<c:when test="${fn:length(subjectVal) > 60}">
+			                  		<span class="subject" onclick="goView('${boardvo.seq}')"><c:out value=" ${fn:substring(subjectVal,0,60)}..."></c:out> </span>
+			                  	</c:when>
+			                  	
+			                  	<c:otherwise>
+			                  		<span class="subject" onclick="goView('${boardvo.seq}')"><c:out value="${boardvo.subject}"></c:out></span>
+			                  	</c:otherwise>
+			                  	</c:choose>
+			                </c:if>
+			          </c:if>
+			               
+			          		
+			               <%-- 답변글인 경우 --%>
+			               <c:if test="${boardvo.depthno > 0}">
+			               
+			                  <c:if test="${boardvo.commentCount > 0}">
+			                  <span class="subject" onclick="goView('${boardvo.seq}')"><span style="color: red; font-style: italic; padding-left: ${boardvo.depthno * 20}px;">└Re&nbsp;</span>${boardvo.subject} <span style="vertical-align: super;">[<span style="color: red; font-size: 9pt; font-style: italic; font-weight: bold;">${boardvo.commentCount}</span>]</span> </span> 
+			                  </c:if>
+			                  
+			                  <c:if test="${boardvo.commentCount == 0}">
+			                  <span class="subject" onclick="goView('${boardvo.seq}')"><span style="color: red; font-style: italic; padding-left: ${boardvo.depthno * 20}px;">└Re&nbsp;</span>${boardvo.subject}</span>  
+			                  </c:if>
+			               </c:if> 
+			          </c:if>
+			               
+			              
+			          <%-- 첨부파일이 있는 경우 --%>
+			          <c:if test="${boardvo.fileName ne '0'}">
+			          
+			               <%-- 답변글이 아닌 원글인 경우 --%>
+			               <c:if test="${boardvo.depthno == 0}">
+			               		
+			                  <c:if test="${boardvo.commentCount > 0}">
+			                  
+			                  <span class="subject" onclick="goView('${boardvo.seq}')">${boardvo.subject} <span style="vertical-align: super;">[<span style="color: red; font-size: 9pt; font-style: italic; font-weight: bold;">${boardvo.commentCount}</span>]</span> </span> &nbsp;<img alt="첨부파일이 있는 글" src="<%= request.getContextPath()%>/resources/images/disk.gif" /> 
+			                  </c:if>
+			                  <c:if test="${boardvo.commentCount == 0}">
+			                  <span class="subject" onclick="goView('${boardvo.seq}')">${boardvo.subject}</span> &nbsp;<img alt="첨부파일이 있는 글" src="<%= request.getContextPath()%>/resources/images/disk.gif" />  
+			                  </c:if>
+			               </c:if>
+			               	
+			               <%-- 답변글인 경우 --%>
+			               <c:if test="${boardvo.depthno > 0}">
+			                  <c:if test="${boardvo.commentCount > 0}">
+			                  <span class="subject" onclick="goView('${boardvo.seq}')"><span style="color: red; font-style: italic; padding-left: ${boardvo.depthno * 20}px;">└Re&nbsp;</span>${boardvo.subject} <span style="vertical-align: super;">[<span style="color: red; font-size: 9pt; font-style: italic; font-weight: bold;">${boardvo.commentCount}</span>]</span> </span> &nbsp;<img alt="첨부파일이 있는 글" src="<%= request.getContextPath()%>/resources/images/disk.gif" />   
+			                  </c:if>
+			                  
+			                  <c:if test="${boardvo.commentCount == 0}">
+			                  <span class="subject" onclick="goView('${boardvo.seq}')"><span style="color: red; font-style: italic; padding-left: ${boardvo.depthno * 20}px;">└Re&nbsp;</span>${boardvo.subject}</span> &nbsp;<img alt="첨부파일이 있는 글" src="<%= request.getContextPath()%>/resources/images/disk.gif" /> 
+			                  </c:if>
+			               </c:if> 
+			          </c:if>
+			          
+			               
+			     </td>
+			     		<%-- === 댓글쓰기 및 답변형 및 파일첨부가 있는 게시판 끝 === --%>
+			            <td align="center"><c:out value="${boardvo.name}"></c:out></td>            
+			            <td align="center">${fn:substring(date,0,10)}</td>
+			            <td align="center">${boardvo.readCount}</td>
+			  </tr>
+			 </c:otherwise>
+      	</c:choose>
       </c:forEach>
    </table>
    
@@ -314,22 +375,29 @@
              페이징 처리되어진 후 특정 글제목을 클릭하여 상세내용을 본 이후
         사용자가 목록보기 버튼을 클릭했을때 돌아갈 페이지를 알려주기 위해
         현재 페이지 주소를 뷰단으로 넘겨준다. --%>
+   
+   
         
    <form name="goViewFrm">
+   		<label for="searchType">검색유형</label>
       <input type="hidden" name="seq" />
       <input type="hidden" name="gobackURL" style="width: 100%;" value="${gobackURL}"/>
    </form>
    
    <%-- === #101. 글검색 폼 추가하기 : 글제목, 글쓴이로 검색을 하도록 한다. === --%>
-   <form name="searchFrm" style="margin-bottom: 20px;">
-      <select name="searchType" id="searchType" style="height: 26px;">
-         <option value="subject" selected>글제목</option>
-         <option value="name">글쓴이</option>
+   <form name="searchFrm"  style="margin-bottom: 20px;">
+   		
+      <select title="검색유형을 선택하세요" name="searchType" id="searchType" style="height: 26px;">
+         <option value="subject" title="글제목" selected>글제목</option>
+         <option value="name" title="글쓴이" >글쓴이</option>
       </select>
-      <input type="text" name="searchWord" id="searchWord" size="40" autocomplete="off" /> 
-      <button type="button" onclick="goSearch();">검색</button>
-      <button type="button" onclick="Write();" >글쓰기</button>
-      <button type="button" onclick="list();" >처음으로</button>
+      
+      <label for="searchWord">검색어 : </label>
+      <input type="text" title="검색어 입력" name="searchWord" id="searchWord" size="25" autocomplete="off" />
+      <input type="hidden" name="downLoadType" id="downLoadType"/>
+      <button type="button" title="검색" onclick="goSearch();">검색</button>
+      <button type="button" title="글쓰기 " onclick="Write();" >글쓰기</button>
+      <button type="button" title="처음으로" onclick="list();" >처음으로</button>
    </form>
    
    <%-- === #106. 검색어 입력시 자동글 완성하기 1 === --%>
