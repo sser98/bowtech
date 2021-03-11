@@ -12,5 +12,9 @@
 		<item key="EditorSelectionDialog.STORE_ID_DESCR" value="C:\Users\user1\Downloads\sqldeveloper-18.2.0.183.1748-no-jre\sqldeveloper\sqldeveloper.exe"/>
 	</section>
 	<section name="ImportExportAction">
+		<item key="ImportExportPage.STORE_SELECTED_IMPORT_WIZARD_ID" value="org.eclipse.ui.wizards.import.ExternalProject"/>
+		<list key="ImportExportPage.STORE_EXPANDED_IMPORT_CATEGORIES">
+			<item value="org.eclipse.ui.Basic"/>
+		</list>
 	</section>
 </section>

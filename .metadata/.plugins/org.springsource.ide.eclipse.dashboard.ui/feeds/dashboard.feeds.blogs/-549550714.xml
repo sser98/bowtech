@@ -5,7 +5,33 @@
   <link rel="self" href="https://spring.io/blog.atom" />
   <id>http://spring.io/blog.atom</id>
   <icon>https://spring.io/favicon.ico</icon>
-  <updated>2021-03-04T22:24:00Z</updated>
+  <updated>2021-03-10T01:14:00Z</updated>
+  <entry>
+    <title>This Week in Spring - March 9th, 2021</title>
+    <link rel="alternate" href="https://spring.io/blog/2021/03/09/this-week-in-spring-march-9th-2021" />
+    <category term="engineering" label="Engineering" />
+    <author>
+      <name>Josh Long</name>
+    </author>
+    <id>tag:spring.io,2021-03-10:4379</id>
+    <updated>2021-03-10T01:14:00Z</updated>
+    <content type="html">&lt;p&gt;Hi, Spring fans! Welcome to another installment of &lt;em&gt;This Week in Spring&lt;/em&gt;! Tomorrow is the day of Spring One Tour - do &lt;em&gt;not&lt;/em&gt; miss this event! We&amp;rsquo;ve also got a lot to get into this week so, without further ado&amp;hellip;&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;In last week&amp;rsquo;s installment of a &lt;a href="https://spring.io/blog/2021/03/04/a-bootiful-podcast-spring-cloud-gateway-for-kubernetes-lead-chris-sterling-on-api-gateways-microservices-spring-cloud-and-more"&gt;&lt;em&gt;A Bootiful Podcast&lt;/em&gt;, I talk Spring Cloud Gateway for Kubernetes lead Chris Sterling on API Gateways, Microservices, Spring Cloud and more&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Tanzu Observability for Wavefront (formerly Wavefront) delivers scalable observability as a service where Spring developers can build analytics-driven dashboards based on multi-sourced data including metrics, traces, histograms, and span logs. The Spring team has worked side-by-side with the Tanzu Observability team to make the process quick and seamless?but there&amp;rsquo;s always room for improvement. You can provide feedback by participating in a user research effort going on right now and make your voice heard about how to make the Tanzu Observability experience with Spring better?choose a time good for you, &lt;a href="https://calendly.com/mgist1/spring-boot-wavefront"&gt;click here&lt;/a&gt;.&lt;/li&gt;
+  &lt;li&gt;I really enjoyed this &lt;a href="https://cacm.acm.org/magazines/2021/3/250706-a-second-conversation-with-werner-vogels/fulltext"&gt;Second Conversation with Amazon&amp;rsquo;s Werner Vogels from March 2021 in &lt;em&gt;Communications of the ACM&lt;/em&gt;&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;I loved this post by &lt;a href="https://calendly.com/mgist1/spring-boot-wavefront?month=2021-03"&gt;https://calendly.com/mgist1/spring-boot-wavefront?month=2021-03&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href="https://twitter.com/kotlin/status/1368082451877294081?s=12"&gt;Kotlin and RSocket tutorial&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href="https://twitter.com/JavaAtMicrosoft/status/1367629885036916739"&gt; Check out this neat talk from Microsoft&amp;rsquo;s Julien Dubois about running Spring in a serverless environment from DevNexus 2021&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Taboola has built a very interesting Spring Boot Actuator that helps you debug asynchronous code - &lt;a href="https://github.com/taboola/async-profiler-actuator-endpoint"&gt;taboola/async-profiler-actuator-endpoint&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;The Baeldung blog has updated their article on &lt;a href="https://www.baeldung.com/spring-boot-security-autoconfiguration"&gt;Spring Boot Security autoconfiguration&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;How to build an API to &lt;a href="https://codeburst.io/how-to-build-an-api-to-perform-web-scraping-in-spring-boot-e8bfaaa4622e"&gt;perform web scraping in Spring Boot&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=bg16bu_Gj-w"&gt;Example of CockroachDB &amp;amp; Java Spring Boot Application Architecture&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=m-7oUV1x7jc"&gt;Caching in Spring Boot with the Caffeine cache&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;This looks interesing: &lt;a href="https://www.youtube.com/watch?v=Ll-Cz6h8s6I"&gt;Spring Boot password encrption with Jasypt&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;!-- rendered by Sagan Renderer Service --&gt;</content>
+  </entry>
   <entry>
     <title>A Bootiful Podcast: Spring Cloud Gateway for Kubernetes lead Chris Sterling on API Gateways, Microservices, Spring Cloud and more</title>
     <link rel="alternate" href="https://spring.io/blog/2021/03/04/a-bootiful-podcast-spring-cloud-gateway-for-kubernetes-lead-chris-sterling-on-api-gateways-microservices-spring-cloud-and-more" />
@@ -512,25 +538,6 @@ Artem&lt;/p&gt;
 &lt;div class="paragraph"&gt;
 &lt;p&gt;&lt;strong&gt;NOTE&lt;/strong&gt;: There was an issue releasing 5.4.3 and 5.3.7 which caused us to need to release 5.4.4 and 5.3.8.&lt;/p&gt;
 &lt;/div&gt;
-&lt;!-- rendered by Sagan Renderer Service --&gt;</content>
-  </entry>
-  <entry>
-    <title>A Bootiful Podcast: Doordash tech lead manager Zohaib Sibte Hassan on Spring Boot, Kotlin, GRPC, and more</title>
-    <link rel="alternate" href="https://spring.io/blog/2021/02/11/a-bootiful-podcast-doordash-tech-lead-manager-zohaib-sibte-hassan-on-spring-boot-kotlin-grpc-and-more" />
-    <category term="engineering" label="Engineering" />
-    <author>
-      <name>Josh Long</name>
-    </author>
-    <id>tag:spring.io,2021-02-12:4359</id>
-    <updated>2021-02-12T01:07:00Z</updated>
-    <content type="html">&lt;iframe title="Doordash tech lead manager Zohaib Sibte Hassan on Spring Boot, Kotlin, GRPC, and more" height="122" width="100%" style="border: none;" scrolling="no" data-name="pb-iframe-player" src="https://www.podbean.com/media/player/irvrk-fa794b?from=pb6admin&amp;download=1&amp;version=1&amp;auto=0&amp;share=1&amp;download=1&amp;rtl=0&amp;fonts=Helvetica&amp;skin=1&amp;pfauth=&amp;btn-skin=107"&gt;&lt;/iframe&gt;
-&lt;p&gt;Hi, Spring fans! In this episode, &lt;a href="http://twitter.com/starbuxman"&gt;Josh Long (@starbuxman)&lt;/a&gt; talks to Doordash tech lead manager &lt;a href="http://twitter.com/zohaibility"&gt;Zohaib Sibte Hassan (@zohaibility)&lt;/a&gt; about Spring Boot, Kotlin, GRPC, organizational scalability, and more at Doordash.&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li&gt;the &lt;a href="https://doordash.engineering/"&gt;Doordash Engineering blog&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href="https://github.com/LogNet/grpc-spring-boot-starter"&gt;A GRPC Spring Boot Starter&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;the Gitter &lt;a href="https://gitter.im/R2DBC/r2dbc"&gt;chat for R2DBC&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href="https://www.linkedin.com/in/zohaibsibtehassan/"&gt;Zohaib on LinkedIn&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
 &lt;!-- rendered by Sagan Renderer Service --&gt;</content>
   </entry>
 </feed>
