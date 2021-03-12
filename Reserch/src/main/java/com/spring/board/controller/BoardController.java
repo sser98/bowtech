@@ -18,6 +18,7 @@ import javax.servlet.http.HttpSession;
 import javax.xml.bind.ParseConversionEvent;
 
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
+import org.apache.poi.ss.formula.functions.T;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -50,6 +51,9 @@ import com.spring.board.common.MyUtil;
 import com.spring.board.common.Sha256;
 import com.spring.board.model.*;
 import com.spring.board.service.*;
+import com.spring.research.model.QuestionVO;
+import com.spring.research.model.ResearchVO;
+import com.sun.mail.util.QEncoderStream;
 
 import lombok.extern.java.Log;
 import lombok.extern.log4j.Log4j;
@@ -378,19 +382,139 @@ public class BoardController {
 
 	/////////////////////////////////////////////////////////////
 
-	// === #36. 메인 페이지 요청 === //
+	// === #1. 메인 페이지 요청 === //
 	@RequestMapping(value = "/index.action")
 	public ModelAndView index(ModelAndView mav) {
 
-		List<String> imgfilenameList = service.getImgfilenameList();
-
-		mav.addObject("imgfilenameList", imgfilenameList);
-		mav.setViewName("main/index.tiles1");
+		/*
+		 * List<String> imgfilenameList = service.getImgfilenameList();
+		 * 
+		 * mav.addObject("imgfilenameList", imgfilenameList);
+		 */
 		// /WEB-INF/views/tiles1/main/index.jsp 파일을 생성한다.
-
+		
+		
+		mav.setViewName("main/index.tiles1");
+		
+		
 		return mav;
 	}
+	
+	
+	// === #2. 설문조사 목록페이지 요청 === //
+	@RequestMapping(value = "/research/researchList.action")
+	public ModelAndView researchList(ModelAndView mav) {
 
+		
+		mav.setViewName("research/researchList.tiles1");
+		
+		
+		
+		
+		
+		
+		
+	
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		return mav;
+	}
+	
+	
+	
+	
+	
+	// === #3. 설문조사 보기 페이지 요청 === //
+	@RequestMapping(value = "/research/researchView.action")
+	public ModelAndView researchView(ModelAndView mav) {
+
+		
+		mav.setViewName("research/researchView.tiles1");
+		
+		return mav;
+	}
+	
+	// === #4. 설문조사 생성 페이지 요청 === //
+	@RequestMapping(value = "/research/researchCreate.action")
+	public ModelAndView researchCreate(HttpServletRequest request, ModelAndView mav) {
+
+		
+		
+		mav.setViewName("research/researchCreate.tiles1");
+		
+		
+		
+		
+		return mav;
+	}
+	
+	// === #5. 설문조사 생성 완료 요청 === //
+	@RequestMapping(value = "/research/researchCreateEnd.action") 
+	public ModelAndView researchCreateEnd(HttpServletRequest request,ResearchVO researchvo, QuestionVO questionvo,ModelAndView mav) {
+		
+		
+		  String gobackURL=request.getParameter("gobackURL");
+		  
+		  System.out.println("CreatEnd.action Test : 441Line");
+		  System.out.println("설문조사 이름 : "+researchvo.getSur_title());
+		  System.out.println("시작일 : " +researchvo.getSur_sat_date());
+		  System.out.println("종료일 : "+researchvo.getSur_end_date());
+		  System.out.println("List로 받는것이 가능할까! : "+questionvo.getList().size());
+		 
+		  Map<String, Object> paraMap = new HashMap<>();
+		  paraMap.put("researchvo", researchvo);
+		  
+		  paraMap.put("researchvo", questionvo.getList());
+		  
+		  // 설문조사 생성하기.
+		  int n=0;
+		  
+		  
+		  n=service.createResearch(paraMap);
+		  
+		  
+		  if(n == 1) {
+			  mav.addObject("message", "설문조사가 성공적으로 등록되었습니다.");
+		  }
+		  
+		  if(n == 1) {
+			  mav.addObject("message", "설문조사가 등록이 실패하였습니다.");
+		  }
+		
+		  if(gobackURL == null) {
+			  gobackURL ="";
+		  }
+		  
+		String loc = "board/research/researchList.action"+gobackURL;
+		mav.addObject("loc", loc);
+		mav.setViewName("msg");
+		
+		/* mav.setViewName("research/researchList.tiles1"); */
+		return mav;
+	}
+	
+	
+	// === #6. 설문조사 편집 페이지 요청 === //
+	@RequestMapping(value = "/research/researchEdit.action")
+	public ModelAndView researchEdit(ModelAndView mav) {
+
+		
+		mav.setViewName("research/researchEdit.tiles1");
+		
+		return mav;
+	}
+	
+	
 	// === #40. 로그인 폼 페이지 요청 === //
 	@RequestMapping(value = "/login.action", method = { RequestMethod.GET })
 	public ModelAndView login(ModelAndView mav) {

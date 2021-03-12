@@ -1,9 +1,0 @@
-package com.spring.board;
-
-public class Test {
-	
-	String number= "1";
-	
-	
-	number.split(",");
-}

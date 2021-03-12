@@ -3,35 +3,20 @@
 
 <%-- ======= #27. tile1 중 footer 페이지 만들기  ======= --%>
 
-<div align="center" style="color: #999999; padding: 7px;">
-쌍용교육센터 | 강남 서울특별시 강남구 테혜란로 132(역삼동) 한독약품빌딩 8층 쌍용교육센터 | 강남 Tel 02)3482-4632-5 Fax 02)3482-4636<br>
-           강북 서울특별시 마포구 월드컵북로 21 풍성빌딩 2,3,4층 쌍용강북교육센터 | 강북  Tel 02)336-8546-8 Fax 02)334-5405<br>
-      사업자번호 : 214-85-29296 | 대표 : 노경한 | 개인정보처리관리책임자 : 장일규<br>       
-Copyright ⓒ 2012 Ssangyong institute of System Technology. All Right Reserved
-</div> 
-
-<script type="text/javascript">
-
-	$(document).ready(function(){
-		func_height();
-	});
-
-    function func_height() {
-      var content_height = $("div#mycontent").height(); 
-      var sideinfo_height = $("div#mysideinfo").height();
-      
-      if(content_height > sideinfo_height) {
-    	  console.log("content_height : " + content_height+", sideinfo_height : " + sideinfo_height);
-    	  $("div#mysideinfo").height(content_height);
-      }
-      
-      if(content_height < sideinfo_height) {
-    	  console.log("content_height : " + content_height+", sideinfo_height : " + sideinfo_height);
-    	  $("div#mycontent").height(sideinfo_height);
-      }
-      
-      content_height = $("div#mycontent").height(); 
-      sideinfo_height = $("div#mysideinfo").height();
-      console.log("content_height : " + content_height+", sideinfo_height : " + sideinfo_height);
-    }
-</script>   
+  <div id="footer">
+    <h2>하단</h2>
+    <address>
+    110-781) 서울특별시 종로구 송월길 48(신문로 2-77)
+    </address>
+    <p>COPYRIGHT(C) 2013 <b>SEOUL metropolitan office of education</b> ALL RIGHT RESERVED</p>
+    <ul>
+      <li class="bn"><a href="#">개인정보보호정책</a></li>
+      <li><a href="#">이메일 무단수집거부</a></li>
+      <li><a href="#">뷰어프로그램</a></li>
+      <li><a href="#">저작권보호</a></li>
+      <li><a href="#">서울학교급식 배너다운로드</a></li>
+    </ul>
+  </div>
+  
+ </div>
+ 

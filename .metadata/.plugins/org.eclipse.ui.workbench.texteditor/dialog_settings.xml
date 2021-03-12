@@ -1,30 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
-		<item key="selection" value="글번호"/>
+		<item key="selection" value="BoardVO"/>
 		<item key="wrap" value="true"/>
 		<item key="casesensitive" value="false"/>
 		<item key="wholeword" value="false"/>
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
-			<item value="글번호"/>
-			<item value="gg"/>
-			<item value="이전글"/>
-			<item value="작성자"/>
-			<item value="검색유형"/>
-			<item value="input"/>
+			<item value="boardVO"/>
+			<item value="setFileName"/>
+			<item value="파일"/>
+			<item value="시작일"/>
 			<item value="img"/>
-			<item value="alt 미정의"/>
-			<item value="검색어"/>
-			<item value="select"/>
-			<item value="수정"/>
-			<item value="첨부파일"/>
-			<item value="edit.action"/>
-			<item value="파일 선택"/>
-			<item value="파일선택"/>
+			<item value="날짜"/>
+			<item value="addEnd.action"/>
+			<item value="설문조사"/>
+			<item value="첨부"/>
+			<item value="글쓰기"/>
+			<item value=".."/>
+			<item value="매우그렇다"/>
+			<item value="menuHidden(prevMenu2, prevSub2);"/>
+			<item value="메인내용"/>
+			<item value="research/researchList.action"/>
 		</list>
 		<list key="replacehistory">
+			<item value="&lt;%=ctxPath%&gt;/resources"/>
+			<item value="  &lt;!-- container--&gt;"/>
+			<item value="&lt;%= ctxPath%&gt;/resources"/>
+			<item value="layout-tiles1"/>
+			<item value=" &lt;!-- container--&gt;"/>
 		</list>
 	</section>
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">

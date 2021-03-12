@@ -5,7 +5,6 @@ import org.springframework.web.multipart.MultipartFile;
 //=== #52. VO 생성하기
 //    먼저, 오라클에서 tbl_board 테이블을 생성해야 한다.
 
-
 public class BoardVO {
 
 	private String seq;              // 글번호 
